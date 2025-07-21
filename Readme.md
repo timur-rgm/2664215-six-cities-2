@@ -1,7 +1,7 @@
 # Личный проект «Шесть городов»
 
 * Студент: [Тимур Рагимов](https://up.htmlacademy.ru/nodejs-api-individual/2/user/2664215).
-* Наставник: `Неизвестно`.
+* Наставник: [Dmitriy Vovk](https://htmlacademy.ru/profile/id2632017).
 
 ---
 
