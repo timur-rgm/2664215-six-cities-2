@@ -1,4 +1,4 @@
-type Amenity =
+export type Amenity =
   | 'Breakfast'
   | 'Air conditioning'
   | 'Laptop friendly workspace'
@@ -7,14 +7,14 @@ type Amenity =
   | 'Towels'
   | 'Fridge';
 
-type City = 'Paris' | 'Cologne' | 'Brussels' | 'Amsterdam' | 'Hamburg' | 'Dusseldorf';
+export type City = 'Paris' | 'Cologne' | 'Brussels' | 'Amsterdam' | 'Hamburg' | 'Dusseldorf';
 
-type Coordinates = {
+export type Coordinates = {
   latitude: number;
   longitude: number;
 }
 
-type HousingType = 'apartment' | 'house' | 'room' | 'hotel';
+export type HousingType = 'apartment' | 'house' | 'room' | 'hotel';
 
 export type OfferType = {
   title: string;
