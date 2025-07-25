@@ -33,9 +33,9 @@ export class TSVFileReader implements FileReader {
 
   public toArray(fileContent: string): OfferType[] {
     return fileContent
-      .split('/n')
+      .split('\n')
       .filter((row) => !!row.trim().length)
-      .map((row) => row.split('/t'))
+      .map((row) => row.split('\t'))
       .map(([
         title,
         description,
