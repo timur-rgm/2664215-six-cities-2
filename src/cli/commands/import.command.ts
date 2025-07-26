@@ -1,4 +1,4 @@
-import { TSVFileReader } from '../../shared/lib/tsv-file-reader/tsv-file-reader.js';
+import { TSVFileReader } from '../../shared/lib/tsv-file-reader/index.js';
 import type { Command } from './command.interface.js';
 
 export class ImportCommand implements Command {
@@ -11,7 +11,7 @@ export class ImportCommand implements Command {
     const fileReader = new TSVFileReader(filePath);
 
     try {
-      const fileContent = fileReader.read();
+      const fileContent = await fileReader.read();
       const offers = fileReader.toArray(fileContent);
       console.log(offers);
     } catch (error) {

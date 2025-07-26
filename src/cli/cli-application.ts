@@ -30,11 +30,19 @@ export class CLIApplication {
     return this.commands[this.defaultCommand];
   }
 
-  public processCommand(argv: string[]): void {
-    const parsedCommand = CommandParser.parse(argv);
-    const [commandName] = Object.keys(parsedCommand);
-    const command = this.getCommand(commandName);
-    const commandArguments = parsedCommand[commandName] ?? [];
-    command.execute(...commandArguments);
+  public async processCommand(argv: string[]): Promise<void> {
+    try {
+      const parsedCommand = CommandParser.parse(argv);
+      const [commandName] = Object.keys(parsedCommand);
+      const command = this.getCommand(commandName);
+      const commandArguments = parsedCommand[commandName] ?? [];
+      await command.execute(...commandArguments);
+    } catch (error) {
+      console.error('Ошибка при выполнении команды');
+
+      if (error instanceof Error) {
+        console.error(error.message);
+      }
+    }
   }
 }

@@ -1,3 +1,3 @@
 export interface FileReader {
-  read(): string
+  read(): Promise<string>
 }

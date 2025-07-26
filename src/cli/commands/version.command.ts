@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import type { Command } from './command.interface.js';
 
@@ -16,8 +16,8 @@ export const isPackageJSONConfig = (value: unknown): value is PackageJSONConfigT
 export class VersionCommand implements Command {
   constructor(private readonly filePath: string = './package.json') {}
 
-  private readVersion(): string {
-    const file = readFileSync(resolve(this.filePath), { encoding: 'utf8' });
+  private async readVersion(): Promise<string> {
+    const file = await readFile(resolve(this.filePath), { encoding: 'utf8' });
     const parsedFile: unknown = JSON.parse(file);
 
     if (!isPackageJSONConfig(parsedFile)) {
@@ -33,7 +33,7 @@ export class VersionCommand implements Command {
 
   public async execute(..._params: string[]): Promise<void> {
     try {
-      const version = this.readVersion();
+      const version = await this.readVersion();
       console.info(version);
     } catch (error) {
       console.error(`Failed to read version from ${this.filePath}`);

@@ -1,7 +1,7 @@
-import { readFileSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import type { FileReader } from './tsv-file-reader.interface.js';
-import { Amenity, City, Coordinates, HousingType, OfferType } from '../../types/index.js';
+import type { Amenity, City, Coordinates, HousingType, OfferType } from '../../types/index.js';
 
 export class TSVFileReader implements FileReader {
   constructor(private readonly filePath: string) {}
@@ -27,8 +27,8 @@ export class TSVFileReader implements FileReader {
     };
   }
 
-  public read(): string {
-    return readFileSync(resolve(this.filePath), { encoding: 'utf8' });
+  public read(): Promise<string> {
+    return readFile(resolve(this.filePath), { encoding: 'utf8' });
   }
 
   public toArray(fileContent: string): OfferType[] {
