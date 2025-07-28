@@ -1,0 +1,48 @@
+import { CommandParser } from './command-parser.js';
+import type { Command } from './commands/index.js';
+
+export class CLIApplication {
+  private commands: Record<string, Command> = {};
+
+  constructor(private readonly defaultCommand: string = '--help') {}
+
+  public registerCommands(commandsToRegister: Command[]): void {
+    commandsToRegister.forEach((command) => {
+      const commandName = command.getName();
+
+      if (Object.hasOwn(this.commands, commandName)) {
+        throw new Error(`Command ${commandName} is already registered`);
+      }
+
+      this.commands[commandName] = command;
+    });
+  }
+
+  private getCommand(commandName: string): Command {
+    return this.commands[commandName] ?? this.getDefaultCommand();
+  }
+
+  private getDefaultCommand(): Command | never {
+    if (!this.commands[this.defaultCommand]) {
+      throw new Error(`The default command (${this.defaultCommand}) is not registered.`);
+    }
+
+    return this.commands[this.defaultCommand];
+  }
+
+  public async processCommand(argv: string[]): Promise<void> {
+    try {
+      const parsedCommand = CommandParser.parse(argv);
+      const [commandName] = Object.keys(parsedCommand);
+      const command = this.getCommand(commandName);
+      const commandArguments = parsedCommand[commandName] ?? [];
+      await command.execute(...commandArguments);
+    } catch (error) {
+      console.error('Ошибка при выполнении команды');
+
+      if (error instanceof Error) {
+        console.error(error.message);
+      }
+    }
+  }
+}
