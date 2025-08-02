@@ -1,13 +1,29 @@
+import { appendFile } from 'node:fs/promises';
 import got from 'got';
-import type { Command } from './command.interface.js';
+import { TSVOfferGenerator } from '../../shared/lib/index.js';
 import type { MockServerData } from '../../shared/types/index.js';
+import type { Command } from './command.interface.js';
 
 export class GenerateCommand implements Command {
-  static async fetchMockData(url: string): Promise<MockServerData> {
+  private data: MockServerData;
+
+  private async loadMockData(url: string): Promise<void> {
     try {
-      return await got.get(url).json<MockServerData>();
+      this.data = await got.get(url).json<MockServerData>();
     } catch {
       throw new Error(`Can't load data from ${url}`);
+    }
+  }
+
+  private async write(filepath: string, offersCount: number): Promise<void> {
+    const tsvOfferGenerator = new TSVOfferGenerator(this.data);
+
+    for (let i = 0; i < offersCount; i++) {
+      await appendFile(
+        filepath,
+        `${tsvOfferGenerator.generate()}\n`,
+        { encoding: 'utf-8'}
+      );
     }
   }
 
@@ -20,7 +36,9 @@ export class GenerateCommand implements Command {
     const offersCount = Number.parseInt(count, 10);
 
     try {
-      const mockData = await GenerateCommand.fetchMockData(url);
+      await this.loadMockData(url);
+      await this.write(filepath, offersCount);
+      console.info(`File ${filepath} was created!`);
     } catch (error) {
       console.error('Can\'t generate data');
 

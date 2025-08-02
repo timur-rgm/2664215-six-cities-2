@@ -9,7 +9,7 @@ import * as constants from './constants.js';
 import type { OfferGenerator } from './offer-generator.interface.js';
 import type { MockServerData } from '../../types/index.js';
 
-export class TsvOfferGenerator implements OfferGenerator {
+export class TSVOfferGenerator implements OfferGenerator {
   constructor(private readonly mockServerData: MockServerData) {}
 
   public generate(): string {
