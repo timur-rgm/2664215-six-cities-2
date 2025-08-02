@@ -59,13 +59,13 @@
       "Fridge"
     ],
     "hosts": [
-      "Roland Deschain",
-      "Holly Gibney",
-      "Ivan Ivanov",
-      "Anton Gorodetsky",
-      "Oleg Sidorov",
-      "John Smith",
-      "Pierre Bezukhov"
+      "user/roland_deschain",
+      "user/holly_gibney",
+      "user/ivan_ivanov",
+      "user/anton_gorodetsky",
+      "user/oleg_sidorov",
+      "user/john_smith",
+      "user/pierre_bezukhov"
     ]
   }
 }
