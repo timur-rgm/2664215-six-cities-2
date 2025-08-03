@@ -21,10 +21,8 @@ export class TSVFileReader extends EventEmitter implements FileReader {
 
     for await (const chunk of readStream) {
       partialRowData += chunk.toString();
-      nextRowIndex = partialRowData.indexOf('\n');
-      const hasNextRow = nextRowIndex >= 0;
 
-      while (hasNextRow) {
+      while ((nextRowIndex = partialRowData.indexOf('\n')) >= 0) {
         const completeRow = partialRowData.slice(0, nextRowIndex + 1);
         partialRowData = partialRowData.slice(++nextRowIndex);
         rowsCount++;

@@ -16,6 +16,7 @@ export class TSVOfferGenerator implements OfferGenerator {
     const title = getRandomArrayItem(this.mockServerData.titles);
     const description = getRandomArrayItem(this.mockServerData.descriptions);
     const previewImage = getRandomArrayItem(this.mockServerData.previewImages);
+    const city = getRandomArrayItem(this.mockServerData.cities);
     const images = this.mockServerData.images.join(';');
     const isPremium = getRandomBoolean();
     const isFavorite = getRandomBoolean();
@@ -41,6 +42,7 @@ export class TSVOfferGenerator implements OfferGenerator {
       title,
       description,
       createdAt,
+      city,
       previewImage,
       images,
       isPremium,
