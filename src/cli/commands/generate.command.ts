@@ -1,6 +1,7 @@
 import { appendFile } from 'node:fs/promises';
 import got from 'got';
 import { TSVOfferGenerator } from '../../shared/libs/index.js';
+import { getErrorMessage } from '../../shared/helpers/index.js';
 import type { MockServerData } from '../../shared/types/index.js';
 import type { Command } from './command.interface.js';
 
@@ -41,10 +42,7 @@ export class GenerateCommand implements Command {
       console.info(`File ${filepath} was created!`);
     } catch (error) {
       console.error('Can\'t generate data');
-
-      if (error instanceof Error) {
-        console.error(error.message);
-      }
+      console.error(getErrorMessage(error));
     }
   }
 }

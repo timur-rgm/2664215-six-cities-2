@@ -1,5 +1,5 @@
 import { TSVFileReader } from '../../shared/libs/index.js';
-import { createOffer } from '../../shared/helpers/index.js';
+import { createOffer, getErrorMessage } from '../../shared/helpers/index.js';
 import type { Command } from './command.interface.js';
 
 export class ImportCommand implements Command {
@@ -27,10 +27,7 @@ export class ImportCommand implements Command {
       await fileReader.read();
     } catch (error) {
       console.error(`Can't import data from file: ${filePath}`);
-
-      if (error instanceof Error) {
-        console.error(error.message);
-      }
+      console.error(getErrorMessage(error));
     }
   }
 }

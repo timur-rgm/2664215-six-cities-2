@@ -1,4 +1,5 @@
 import { CommandParser } from './command-parser.js';
+import { getErrorMessage } from '../shared/helpers/index.js';
 import type { Command } from './commands/index.js';
 
 export class CLIApplication {
@@ -39,10 +40,7 @@ export class CLIApplication {
       await command.execute(...commandArguments);
     } catch (error) {
       console.error('Ошибка при выполнении команды');
-
-      if (error instanceof Error) {
-        console.error(error.message);
-      }
+      console.error(getErrorMessage(error));
     }
   }
 }
