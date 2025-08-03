@@ -1,6 +1,6 @@
 import { appendFile } from 'node:fs/promises';
 import got from 'got';
-import { TSVOfferGenerator } from '../../shared/lib/index.js';
+import { TSVOfferGenerator } from '../../shared/libs/index.js';
 import type { MockServerData } from '../../shared/types/index.js';
 import type { Command } from './command.interface.js';
 

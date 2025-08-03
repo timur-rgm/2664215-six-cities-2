@@ -4,7 +4,7 @@ import {
   getRandomBoolean,
   getRandomArrayItem,
   getRandomArrayItems
-} from '../random.js';
+} from '../../helpers/random.js';
 import * as constants from './constants.js';
 import type { OfferGenerator } from './offer-generator.interface.js';
 import type { MockServerData } from '../../types/index.js';
