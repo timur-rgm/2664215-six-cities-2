@@ -19,8 +19,6 @@ export class TSVFileReader extends EventEmitter implements FileReader {
     let nextRowIndex = -1;
     let rowsCount = 0;
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     for await (const chunk of readStream) {
       partialRowData += chunk.toString();
       nextRowIndex = partialRowData.indexOf('\n');
