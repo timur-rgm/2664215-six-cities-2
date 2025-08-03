@@ -1,5 +1,6 @@
 import { TSVFileReader } from '../../shared/libs/index.js';
 import { createOffer, getErrorMessage } from '../../shared/helpers/index.js';
+import { FileReaderEvents } from '../../shared/constants/index.js';
 import type { Command } from './command.interface.js';
 
 export class ImportCommand implements Command {
@@ -20,7 +21,7 @@ export class ImportCommand implements Command {
     const [filePath] = params;
     const fileReader = new TSVFileReader(filePath);
 
-    fileReader.on('rowRead', this.onRowRead);
+    fileReader.on(FileReaderEvents.RowRead, this.onRowRead);
     fileReader.on('end', this.onReadEnd);
 
     try {
