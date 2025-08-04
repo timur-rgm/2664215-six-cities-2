@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { getErrorMessage } from '../../shared/helpers/index.js';
 import type { Command } from './command.interface.js';
 
 type PackageJSONConfigType = {
@@ -37,10 +38,7 @@ export class VersionCommand implements Command {
       console.info(version);
     } catch (error) {
       console.error(`Failed to read version from ${this.filePath}`);
-
-      if (error instanceof Error) {
-        console.error(error.message);
-      }
+      console.error(getErrorMessage(error));
     }
   }
 }

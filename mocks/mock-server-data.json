@@ -1,0 +1,71 @@
+{
+  "api": {
+    "titles": [
+      "The Dark Tower: Cozy Apartment in Amsterdam",
+      "The Institute: Family House in Cologne",
+      "Cujo: Hotel Room in Paris",
+      "Salem's Lot: Riverside Flat in Hamburg",
+      "The Draft: Student Room in Dusseldorf",
+      "The Green Mile: Spacious House in Brussels",
+      "Night Watch: Budget Room in Amsterdam"
+    ],
+    "descriptions": [
+      "A cozy apartment in the heart of Amsterdam, decorated in a fantasy style. A perfect choice for a quiet and atmospheric stay.",
+      "A modern house ideal for a family vacation. Spacious rooms, a large garden, and a relaxing vibe.",
+      "A small but cozy hotel room near the center of Paris. Perfect for business trips or solo travelers.",
+      "A charming flat overlooking the Elbe. Vintage furniture and close to historical attractions.",
+      "An affordable room in a well-developed neighborhood. Great for students and solo visitors.",
+      "A large house in a peaceful area near a park. Lots of light and a fairy-tale feel inside.",
+      "A small room with a canal view in the city center. Great value and essential comfort."
+    ],
+    "cities": [
+      "Amsterdam",
+      "Cologne",
+      "Paris",
+      "Hamburg",
+      "Dusseldorf",
+      "Brussels"
+    ],
+    "previewImages": [
+      "dark-tower.jpg",
+      "institute-book.jpg",
+      "book.jpg",
+      "house.jpg",
+      "draft.jpg",
+      "shining.jpg",
+      "coffee.jpg"
+    ],
+    "images": [
+      "book.jpg",
+      "institute-book.jpg",
+      "dark-tower.jpg",
+      "shining.jpg",
+      "draft.jpg",
+      "house.jpg"
+    ],
+    "types": [
+      "apartment",
+      "house",
+      "hotel",
+      "room"
+    ],
+    "amenities": [
+      "Breakfast",
+      "Air conditioning",
+      "Laptop friendly workspace",
+      "Baby seat",
+      "Washer",
+      "Towels",
+      "Fridge"
+    ],
+    "hosts": [
+      "user/roland_deschain",
+      "user/holly_gibney",
+      "user/ivan_ivanov",
+      "user/anton_gorodetsky",
+      "user/oleg_sidorov",
+      "user/john_smith",
+      "user/pierre_bezukhov"
+    ]
+  }
+}
