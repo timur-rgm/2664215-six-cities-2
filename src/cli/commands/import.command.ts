@@ -22,7 +22,7 @@ export class ImportCommand implements Command {
     const fileReader = new TSVFileReader(filePath);
 
     fileReader.on(FileReaderEvents.RowRead, this.onRowRead);
-    fileReader.on('end', this.onReadEnd);
+    fileReader.on(FileReaderEvents.End, this.onReadEnd);
 
     try {
       await fileReader.read();
