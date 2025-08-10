@@ -1,7 +1,9 @@
 import { pino } from 'pino';
+import { injectable } from 'inversify';
 import type { Logger as PinoInstance } from 'pino';
 import type { Logger } from './logger.interface.js';
 
+@injectable()
 export class PinoLogger implements Logger {
   private readonly logger: PinoInstance;
 
