@@ -1,9 +1,9 @@
-import type{ Config } from '../shared/libs/config/index.js';
+import type { Config, RestSchema } from '../shared/libs/config/index.js';
 import type { Logger } from '../shared/libs/logger/index.js';
 
 export class RestApplication {
   constructor(
-    private readonly config: Config,
+    private readonly config: Config<RestSchema>,
     private readonly logger: Logger,
   ) {}
 
