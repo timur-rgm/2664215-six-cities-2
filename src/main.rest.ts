@@ -6,6 +6,7 @@ import { RestApplication } from './rest/index.js';
 import { Component } from './shared/types/index.js';
 import type { Config, RestSchema } from './shared/libs/config/index.js';
 import type { Logger } from './shared/libs/logger/index.js';
+import { getErrorMessage } from './shared/helpers/index.js';
 
 const bootstrap = async () => {
   const container = new Container();
@@ -29,4 +30,4 @@ const bootstrap = async () => {
   await application.init();
 };
 
-bootstrap();
+bootstrap().catch((error) => console.error(getErrorMessage(error)));
