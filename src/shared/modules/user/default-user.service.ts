@@ -8,8 +8,6 @@ import { Component } from '../../types/index.js';
 import type { Logger } from '../../libs/logger/index.js';
 
 @injectable()
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 export class DefaultUserService implements UserService {
   constructor(
     @inject(Component.Logger) private readonly logger: Logger,
@@ -23,5 +21,19 @@ export class DefaultUserService implements UserService {
     const result = await this.userModel.create(user);
     this.logger.info(`New user created: ${user.email}`);
     return result;
+  }
+
+  public async findByEmail(email: string): Promise<DocumentType<UserEntity> | null> {
+    return this.userModel.findOne({ email });
+  }
+
+  public async findOrCreate(userData: CreateUserDto, salt: string): Promise<DocumentType<UserEntity>> {
+    const user = await this.findByEmail(userData.email);
+
+    if (user) {
+      return user;
+    }
+
+    return this.create(userData, salt);
   }
 }

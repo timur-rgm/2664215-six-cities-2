@@ -8,8 +8,6 @@ import { createUserContainer } from './shared/modules/user/index.js';
 import { getErrorMessage } from './shared/helpers/index.js';
 
 const bootstrap = async () => {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   const appContainer = Container.merge(
     createRestApplicationContainer(),
     createUserContainer()

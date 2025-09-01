@@ -15,8 +15,6 @@ export const createUserContainer = () => {
 
   container
     .bind<UserService>(Component.UserService)
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     .to(DefaultUserService)
     .inSingletonScope();
 
