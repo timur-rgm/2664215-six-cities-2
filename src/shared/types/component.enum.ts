@@ -2,6 +2,7 @@ export const Component = {
   Config: Symbol.for('Config'),
   DatabaseClient: Symbol.for('DatabaseClient'),
   Logger: Symbol.for('Logger'),
+  OfferModel: Symbol.for('OfferModel'),
   RestApplication: Symbol.for('RestApplication'),
   UserModel: Symbol.for('UserModel'),
   UserService: Symbol.for('UserService'),
