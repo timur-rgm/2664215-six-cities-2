@@ -1,4 +1,4 @@
-import { inject } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { types } from '@typegoose/typegoose';
 import type { DocumentType } from '@typegoose/typegoose';
 
@@ -8,6 +8,9 @@ import type { Logger } from '../../libs/logger/index.js';
 import { OfferEntity } from './offer.entity.js';
 import { CreateOfferDto } from './dto/index.js';
 
+@injectable()
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 export class DefaultOfferService implements OfferService {
   constructor(
     @inject(Component.Logger) private readonly logger: Logger,
