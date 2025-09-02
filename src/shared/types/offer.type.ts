@@ -1,25 +1,37 @@
-export type Amenity =
-  | 'Breakfast'
-  | 'Air conditioning'
-  | 'Laptop friendly workspace'
-  | 'Baby seat'
-  | 'Washer'
-  | 'Towels'
-  | 'Fridge';
+export enum Amenity {
+  Breakfast = 'Breakfast',
+  Air = 'Air conditioning',
+  Laptop = 'Laptop friendly workspace',
+  Baby = 'Baby seat',
+  Washer = 'Washer',
+  Towels = 'Towels',
+  Fridge = 'Fridge',
+}
 
-export type City = 'Paris' | 'Cologne' | 'Brussels' | 'Amsterdam' | 'Hamburg' | 'Dusseldorf';
+export enum City {
+  Paris = 'Paris',
+  Cologne = 'Cologne',
+  Brussels = 'Brussels',
+  Amsterdam = 'Amsterdam',
+  Hamburg = 'Hamburg',
+  Dusseldorf = 'Dusseldorf',
+}
+
+export enum HousingType {
+  Apartment = 'apartment',
+  House = 'house',
+  Room = 'room',
+  Hotel = 'hotel'
+}
 
 export type Coordinates = {
   latitude: number;
   longitude: number;
 }
 
-export type HousingType = 'apartment' | 'house' | 'room' | 'hotel';
-
 export type OfferType = {
   title: string;
   description: string;
-  createdAt: string;
   city: City;
   previewImage: string;
   images: string[];

@@ -1,6 +1,13 @@
 import { prop, modelOptions, defaultClasses, getModelForClass } from '@typegoose/typegoose';
-import { OfferType } from '../../types/index.js';
+import { Amenity, City, HousingType, OfferType } from '../../types/index.js';
 
+class Coordinates {
+  @prop({ required: true })
+  public latitude!: number;
+
+  @prop({ required: true })
+  public longitude!: number;
+}
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export interface OfferEntity extends defaultClasses.Base {}
@@ -11,11 +18,89 @@ export interface OfferEntity extends defaultClasses.Base {}
     timestamps: true,
   }
 })
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-export class OfferEntity extends defaultClasses.TimeStamps implements OfferType { // eslint-disable-line @typescript-eslint/no-unsafe-declaration-merging
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+export class OfferEntity extends defaultClasses.TimeStamps implements OfferType {
   @prop({ required: true, trim: true })
   public title: string;
+
+  @prop({ required: true, trim: true })
+  public description: string;
+
+  @prop({
+    required: true,
+    type: () => String,
+    enum: City
+  })
+  public city: City;
+
+  @prop({ required: true })
+  public previewImage: string;
+
+  @prop({
+    required: true,
+    type: () => String
+  })
+  public images: string[];
+
+  @prop({ required: true })
+  public isPremium: boolean;
+
+  @prop({ required: true })
+  public isFavorite: boolean;
+
+  @prop({
+    required: true,
+    min: 1,
+    max: 5
+  })
+  public rating: number;
+
+  @prop({
+    required: true,
+    type: () => String,
+    enum: HousingType
+  })
+  public type: HousingType;
+
+  @prop({
+    required: true,
+    min: 1,
+    max: 8
+  })
+  public bedrooms: number;
+
+  @prop({
+    required: true,
+    min: 1,
+    max: 10
+  })
+  public maxAdults: number;
+
+  @prop({
+    required: true,
+    min: 100,
+    max: 100_000
+  })
+  public price: number;
+
+  @prop({
+    required: true,
+    type: () => String,
+    enum: Amenity
+  })
+  public amenities: Amenity[];
+
+  @prop({ required: true })
+  public host: string;
+
+  @prop({ default: 0 })
+  public commentCount: number;
+
+  @prop({
+    required: true,
+    _id: false
+  })
+  public location: Coordinates;
 }
 
 export const OfferModel = getModelForClass(OfferEntity);
