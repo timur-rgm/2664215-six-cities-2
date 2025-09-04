@@ -28,7 +28,7 @@ export const createOffer = (offerData: string): OfferType => {
     maxAdults,
     price,
     amenities,
-    host,
+    user,
     commentCount,
     location
   ] = offerData
@@ -38,9 +38,13 @@ export const createOffer = (offerData: string): OfferType => {
   return {
     title,
     description,
-    createdAt,
+    createdAt: new Date(createdAt),
     previewImage,
-    host,
+    user: {
+      name: user,
+      email: user,
+      type: 'ordinary',
+    },
     city: city as City,
     type: type as HousingType,
     images: parseArray(images),

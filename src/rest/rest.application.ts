@@ -1,4 +1,4 @@
-import { injectable, inject } from 'inversify';
+import { inject, injectable } from 'inversify';
 
 import { Component } from '../shared/types/index.js';
 import type { Config, RestSchema } from '../shared/libs/config/index.js';
@@ -11,7 +11,7 @@ export class RestApplication {
   constructor(
     @inject(Component.Config) private readonly config: Config<RestSchema>,
     @inject(Component.DatabaseClient) private readonly databaseClient: DatabaseClient,
-    @inject(Component.Logger) private readonly logger: Logger
+    @inject(Component.Logger) private readonly logger: Logger,
   ) {}
 
   private async initDB() {

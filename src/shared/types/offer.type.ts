@@ -1,3 +1,5 @@
+import type { UserType } from './user.type.js';
+
 export enum Amenity {
   Breakfast = 'Breakfast',
   Air = 'Air conditioning',
@@ -43,7 +45,9 @@ export type OfferType = {
   maxAdults: number;
   price: number;
   amenities: Amenity[];
-  host: string;
+  user: UserType;
   commentCount: number;
   location: Coordinates;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
