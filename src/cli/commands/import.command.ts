@@ -1,26 +1,80 @@
+import { DefaultUserService, UserModel, UserService } from '../../shared/modules/user/index.js';
+import { DefaultOfferService, OfferModel, OfferService } from '../../shared/modules/offer/index.js';
+import { DatabaseClient, MongoDatabaseClient } from '../../shared/libs/database-client/index.js';
 import { TSVFileReader } from '../../shared/libs/index.js';
-import { createOffer, getErrorMessage } from '../../shared/helpers/index.js';
+import { createOffer, getErrorMessage, getMongoURI } from '../../shared/helpers/index.js';
+import { ConsoleLogger, Logger } from '../../shared/libs/logger/index.js';
 import { FileReaderEvents } from '../../shared/constants/index.js';
+import { DEFAULT_USER_PASSWORD } from './command.constant.js';
 import type { Command } from './command.interface.js';
+import type { OfferType } from '../../shared/types/index.js';
 
 export class ImportCommand implements Command {
-  private onRowRead(row: string) {
-    const offer = createOffer(row);
-    console.info(offer);
+  private databaseClient: DatabaseClient;
+  private readonly logger: Logger;
+  private offerService: OfferService;
+  private salt: string;
+  private userService: UserService;
+
+  constructor() {
+    this.onRowRead = this.onRowRead.bind(this);
+    this.onReadEnd = this.onReadEnd.bind(this);
+
+    this.logger = new ConsoleLogger();
+    this.databaseClient = new MongoDatabaseClient(this.logger);
+    this.offerService = new DefaultOfferService(this.logger, OfferModel);
+    this.userService = new DefaultUserService(this.logger, UserModel);
   }
 
-  private onReadEnd(rowsCount: number) {
+  private async onRowRead(row: string, resolve: () => void) {
+    const offer = createOffer(row);
+    await this.saveOffer(offer);
+    resolve();
+  }
+
+  private async onReadEnd(rowsCount: number) {
     console.info(`${rowsCount} rows imported.`);
+    await this.databaseClient.disconnect();
+  }
+
+  private async saveOffer(offer: OfferType) {
+    const user = await this.userService.findByEmailOrCreate({
+      ...offer.user,
+      password: DEFAULT_USER_PASSWORD,
+    }, this.salt);
+
+    await this.offerService.createOffer({
+      ...offer,
+      userId: user.id
+    });
   }
 
   public getName(): string {
     return '--import';
   }
 
-  public async execute(...params: string[]): Promise<void> {
-    const [filePath] = params;
-    const fileReader = new TSVFileReader(filePath);
+  public async execute(
+    filePath: string,
+    login: string,
+    password: string,
+    dbHost: string,
+    dbPort: string,
+    dbname: string,
+    salt: string
+  ): Promise<void> {
+    this.salt = salt;
 
+    const mongoUri = getMongoURI(
+      login,
+      password,
+      dbHost,
+      dbPort,
+      dbname
+    );
+
+    await this.databaseClient.connect(mongoUri);
+
+    const fileReader = new TSVFileReader(filePath);
     fileReader.on(FileReaderEvents.RowRead, this.onRowRead);
     fileReader.on(FileReaderEvents.End, this.onReadEnd);
 

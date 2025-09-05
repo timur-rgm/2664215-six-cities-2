@@ -58,14 +58,32 @@
       "Towels",
       "Fridge"
     ],
-    "hosts": [
-      "user/roland_deschain",
-      "user/holly_gibney",
-      "user/ivan_ivanov",
-      "user/anton_gorodetsky",
-      "user/oleg_sidorov",
-      "user/john_smith",
-      "user/pierre_bezukhov"
+    "users": [
+      "Иван Иванов",
+      "Олег Сидоров",
+      "Пьер Безухов",
+      "Роланд Дискейн",
+      "Холи Гибни",
+      "Джек Торренс",
+      "Антон Городецкий",
+      "Борис Гесер",
+      "Рокки Бальбоа",
+      "Джон Смит"
+    ],
+    "emails": [
+      "snow@pisem.local",
+      "president@dka.local",
+      "fish@big.local",
+      "test@pisem.local",
+      "freedom@pisem.local",
+      "rolan@pochta.local",
+      "author@mir.local",
+      "test@lost.loca",
+      "kujo-fan@story.local"
+    ],
+    "roles": [
+      "pro",
+      "ordinary"
     ]
   }
 }

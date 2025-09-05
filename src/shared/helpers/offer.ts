@@ -1,4 +1,4 @@
-import type { Amenity, City, Coordinates, HousingType, OfferType } from '../types/index.js';
+import { Amenity, City, Coordinates, HousingType, OfferType, UserRole } from '../types/index.js';
 
 const parseBoolean = (value: string): boolean => value === 'true';
 const parseNumber = (value: string): number => Number.parseInt(value, 10);
@@ -35,15 +35,17 @@ export const createOffer = (offerData: string): OfferType => {
     .replace('\n', '')
     .split('\t');
 
+  const [name, email, role] = parseArray(user);
+
   return {
     title,
     description,
     createdAt: new Date(createdAt),
     previewImage,
     user: {
-      name: user,
-      email: user,
-      type: 'ordinary',
+      name,
+      email,
+      type: role as UserRole
     },
     city: city as City,
     type: type as HousingType,
