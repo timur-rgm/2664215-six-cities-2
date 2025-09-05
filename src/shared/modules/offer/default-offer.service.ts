@@ -24,18 +24,4 @@ export class DefaultOfferService implements OfferService {
   public async findByOfferId(offerId: string): Promise<DocumentType<OfferEntity> | null> {
     return this.offerModel.findOne({ offerId }).exec();
   }
-
-  public async findByOfferName(offerName: string): Promise<DocumentType<OfferEntity> | null> {
-    return this.offerModel.findOne({ title: offerName }).exec();
-  }
-
-  public async findByOfferNameOrCreate(offerData: CreateOfferDto): Promise<DocumentType<OfferEntity>> {
-    const offer = await this.findByOfferName(offerData.title);
-
-    if (offer) {
-      return offer;
-    }
-
-    return this.createOffer(offerData);
-  }
 }

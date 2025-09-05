@@ -27,7 +27,7 @@ export class DefaultUserService implements UserService {
     return this.userModel.findOne({ email });
   }
 
-  public async findOrCreate(userData: CreateUserDto, salt: string): Promise<DocumentType<UserEntity>> {
+  public async findByEmailOrCreate(userData: CreateUserDto, salt: string):Promise<DocumentType<UserEntity>> {
     const user = await this.findByEmail(userData.email);
 
     if (user) {
