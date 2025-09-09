@@ -55,21 +55,21 @@ export class ImportCommand implements Command {
 
   public async execute(
     filePath: string,
-    login: string,
-    password: string,
+    dbUser: string,
+    dbPassword: string,
     dbHost: string,
     dbPort: string,
-    dbname: string,
+    dbName: string,
     salt: string
   ): Promise<void> {
     this.salt = salt;
 
     const mongoUri = getMongoURI(
-      login,
-      password,
+      dbUser,
+      dbPassword,
       dbHost,
       dbPort,
-      dbname
+      dbName
     );
 
     await this.databaseClient.connect(mongoUri);
