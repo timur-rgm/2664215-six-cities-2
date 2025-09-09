@@ -26,8 +26,15 @@ export class TSVOfferGenerator implements OfferGenerator {
     const maxAdults = getRandomNumber(constants.MIN_ADULTS, constants.MAX_ADULTS);
     const price = getRandomNumber(constants.MIN_PRICE, constants.MAX_PRICE);
     const amenities = getRandomArrayItems(this.mockServerData.amenities).join(';');
-    const host = getRandomArrayItem(this.mockServerData.hosts);
     const commentCount = getRandomNumber(constants.MIN_COMMENTS_COUNT, constants.MAX_COMMENTS_COUNT);
+
+    const name = getRandomArrayItem(this.mockServerData.users);
+    const email = getRandomArrayItem(this.mockServerData.emails);
+    const role = getRandomArrayItem(this.mockServerData.roles);
+
+    const user = [
+      name, email, role,
+    ].join(';');
 
     const location = [
       getRandomNumber(constants.MIN_COORDINATE, constants.MAX_COORDINATE, 6),
@@ -53,7 +60,7 @@ export class TSVOfferGenerator implements OfferGenerator {
       maxAdults,
       price,
       amenities,
-      host,
+      user,
       commentCount,
       location
     ].join('\t');
