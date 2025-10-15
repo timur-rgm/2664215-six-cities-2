@@ -32,7 +32,7 @@ paths:
         required: true
       responses:
         "201":
-          description: Пользователь зарегистрирован. Объект пользователя.
+          description: Пользователь зарегистрирован. Возвращает объект пользователя.
           content:
             application/json:
               schema:
@@ -46,11 +46,36 @@ paths:
         - users
       summary: Проверка состояния пользователя
       description: Возвращает информацию по авторизованному пользователю.
+      responses:
+        "200":
+          description: Пользователь авторизован. Возвращает объект пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        "401":
+          description: Пользователь не авторизован.
     post:
       tags:
         - users
       summary: Авторизация пользователя
       description: Авторизует пользователя на основе логина и пароля.
+      requestBody:
+        description: Данные для авторизации пользователя.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/loginUser'
+        required: true
+      responses:
+        "200":
+          description: Успешная авторизация. Возвращает токен доступа.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/loggedUser'
+        "401":
+          description: Неверный логин или пароль.
 
   /users/logout:
     post:
@@ -84,6 +109,21 @@ components:
         role:
           type: string
           example: pro
+    loginUser:
+      type: object
+      properties:
+        email:
+          type: string
+          example: tom@gmail.com
+        password:
+          type: string
+          example: 123456
+    loggedUser:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
     user:
       type: object
       properties:
