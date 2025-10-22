@@ -1,0 +1,146 @@
+openapi: 3.1.0
+info:
+  title: API сервер для проекта «Шесть городов».
+  description: |-
+    * Список ресурсов и маршрутов сервера «Шесть городов».
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 1.0.0
+
+tags:
+  - name: offers
+    description: Действия с предложениями по аренде.
+  - name: users
+    description: Действия с пользователями.
+  - name: comments
+    description: Действия с комментариями.
+
+paths:
+  /users/register:
+    post:
+      tags:
+        - users
+      summary: Регистрация пользователя
+      description: Регистрирует нового пользователя.
+      requestBody:
+        description: Информация для создания нового пользователя.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createUser'
+        required: true
+      responses:
+        "201":
+          description: Пользователь зарегистрирован. Возвращает объект пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        "409":
+          description: Пользователь с таким email уже существует.
+
+  /users/login:
+    get:
+      tags:
+        - users
+      summary: Проверка состояния пользователя
+      description: Возвращает информацию по авторизованному пользователю.
+      responses:
+        "200":
+          description: Пользователь авторизован. Возвращает объект пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        "401":
+          description: Пользователь не авторизован.
+    post:
+      tags:
+        - users
+      summary: Авторизация пользователя
+      description: Авторизует пользователя на основе логина и пароля.
+      requestBody:
+        description: Данные для авторизации пользователя.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/loginUser'
+        required: true
+      responses:
+        "200":
+          description: Успешная авторизация. Возвращает токен доступа.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/loggedUser'
+        "401":
+          description: Неверный логин или пароль.
+
+  /users/logout:
+    post:
+      tags:
+        - users
+      summary: Выход из системы
+      description: Завершает сессию пользователя и удаляет токен аутентификации.
+      responses:
+        "204":
+          description: Сессия завершена успешно. Тело ответа отсутствует.
+        "401":
+          description: Пользователь не авторизован или токен недействителен.
+
+  /users/{userId}/avatar:
+    post:
+      tags:
+        - users
+      summary: Загрузить изображение аватара
+      description: Загружает изображение аватара пользователя. Изображение
+        аватара должно быть в формате `png` или `jpg`.
+
+components:
+  schemas:
+    createUser:
+      type: object
+      properties:
+        email:
+          type: string
+          example: tom@gmail.com
+        name:
+          type: string
+          example: Tom
+        password:
+          type: string
+          example: 123456
+        role:
+          type: string
+          example: pro
+    loginUser:
+      type: object
+      properties:
+        email:
+          type: string
+          example: tom@gmail.com
+        password:
+          type: string
+          example: 123456
+    loggedUser:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+    user:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 6329c3d6a04ab1061c6425ea
+        email:
+          type: string
+          example: tom@gmail.com
+        name:
+          type: string
+          example: Tom
+        role:
+          type: string
+          example: pro
