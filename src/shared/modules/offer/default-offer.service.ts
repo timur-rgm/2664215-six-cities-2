@@ -2,11 +2,11 @@ import { inject, injectable } from 'inversify';
 import { types } from '@typegoose/typegoose';
 import type { DocumentType } from '@typegoose/typegoose';
 
-import { Component } from '../../types/index.js';
+import { Component, City } from '../../types/index.js';
 import type { OfferService } from './offer-service.interface.js';
 import type { Logger } from '../../libs/logger/index.js';
 import { OfferEntity } from './offer.entity.js';
-import { CreateOfferDto } from './dto/index.js';
+import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
 
 @injectable()
 export class DefaultOfferService implements OfferService {
@@ -21,13 +21,50 @@ export class DefaultOfferService implements OfferService {
     return result;
   }
 
-  public find(): Promise<DocumentType<OfferEntity>[]> {
-    return this.offerModel.find();
+  public findAll(): Promise<DocumentType<OfferEntity>[]> {
+    return this.offerModel
+      .find()
+      .populate(['userId'])
+      .exec();
   }
 
   public async findById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
     return this.offerModel
       .findById(offerId)
+      .populate(['userId'])
+      .exec();
+  }
+
+  public findAllFavorites(): Promise<DocumentType<OfferEntity>[]> {
+    return this.offerModel
+      .find({ isFavorite: true })
+      .populate(['userId'])
+      .exec();
+  }
+
+  public findPremiumByCity(city: City): Promise<DocumentType<OfferEntity>[]> {
+    return this.offerModel
+      .find({ city, isPremium: true })
+      .populate(['userId'])
+      .exec();
+  }
+
+  public async updateById(offerId: string, offerData: UpdateOfferDto): Promise<DocumentType<OfferEntity> | null> {
+    return this.offerModel
+      .findByIdAndUpdate(offerId, offerData, { new: true })
+      .populate(['userId'])
+      .exec();
+  }
+
+  public deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
+    return this.offerModel
+      .findByIdAndDelete(offerId)
+      .exec();
+  }
+
+  public incCommentCount(offerId:string): Promise<DocumentType<OfferEntity> | null> {
+    return this.offerModel
+      .findByIdAndUpdate(offerId, { $inc: { commentCount: 1 } })
       .populate(['userId'])
       .exec();
   }
