@@ -3,7 +3,7 @@ import { DocumentType, types } from '@typegoose/typegoose';
 
 import type { UserService } from './user-service.interface.js';
 import { UserEntity } from './user.entity.js';
-import { CreateUserDto } from './dto/index.js';
+import { CreateUserDto, UpdateUserDto } from './dto/index.js';
 import { Component } from '../../types/index.js';
 import type { Logger } from '../../libs/logger/index.js';
 
@@ -14,9 +14,9 @@ export class DefaultUserService implements UserService {
     @inject(Component.UserModel) private readonly userModel: types.ModelType<UserEntity>
   ) {}
 
-  public async create(userData: CreateUserDto, salt: string): Promise<DocumentType<UserEntity>> {
-    const user = new UserEntity(userData);
-    user.setPassword(userData.password, salt);
+  public async create(dto: CreateUserDto, salt: string): Promise<DocumentType<UserEntity>> {
+    const user = new UserEntity(dto);
+    user.setPassword(dto.password, salt);
 
     const result = await this.userModel.create(user);
     this.logger.info(`New user created: ${user.email}`);
@@ -35,5 +35,11 @@ export class DefaultUserService implements UserService {
     }
 
     return this.create(userData, salt);
+  }
+
+  public async updateUserById(userId: string, dto: UpdateUserDto): Promise<DocumentType<UserEntity> | null> {
+    return this.userModel
+      .findByIdAndUpdate(userId, dto, { new: true })
+      .exec();
   }
 }
