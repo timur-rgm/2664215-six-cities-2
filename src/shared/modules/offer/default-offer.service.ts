@@ -23,8 +23,23 @@ export class DefaultOfferService implements OfferService {
 
   public findAll(): Promise<DocumentType<OfferEntity>[]> {
     return this.offerModel
-      .find()
-      .populate(['userId'])
+      .aggregate([
+        {
+          $lookup: {
+            from: 'comments',
+            let: { offerId: '$_id' },
+            pipeline: [
+              { $match: { $expr: { $eq: ['$offerId', '$$offerId'] } } },
+              { $project: { _id: 1}}
+            ],
+            as: 'comments',
+          }
+        },
+        { $addFields:
+            { id: { $toString: '$_id'}, commentCount: { $size: '$comments'} }
+        },
+        { $unset: 'comments' },
+      ])
       .exec();
   }
 
@@ -59,13 +74,6 @@ export class DefaultOfferService implements OfferService {
   public deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
     return this.offerModel
       .findByIdAndDelete(offerId)
-      .exec();
-  }
-
-  public incCommentCount(offerId:string): Promise<DocumentType<OfferEntity> | null> {
-    return this.offerModel
-      .findByIdAndUpdate(offerId, { $inc: { commentCount: 1 } })
-      .populate(['userId'])
       .exec();
   }
 }
