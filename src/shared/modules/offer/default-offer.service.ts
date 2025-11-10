@@ -35,6 +35,17 @@ export class DefaultOfferService implements OfferService {
             as: 'comments',
           }
         },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'userId',
+            foreignField: '_id',
+            as: 'userId'
+          }
+        },
+        {
+          $unwind: '$userId'
+        },
         { $addFields:
             { id: { $toString: '$_id'}, commentCount: { $size: '$comments'} }
         },
