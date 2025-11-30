@@ -39,6 +39,10 @@ export class RestApplication {
     await this.databaseClient.connect(mongoURI);
   }
 
+  private initMiddleware() {
+    this.server.use(express.json());
+  }
+
   private initControllers() {
     this.server.use('/offers', this.offersController.router);
   }
@@ -48,6 +52,10 @@ export class RestApplication {
     this.logger.info('Initializing database...');
     await this.initDB();
     this.logger.info('Database initialized');
+
+    this.logger.info('Init app-level middleware');
+    this.initMiddleware();
+    this.logger.info('App-level middleware initialization completed');
 
     this.logger.info('Init controllers');
     this.initControllers();
