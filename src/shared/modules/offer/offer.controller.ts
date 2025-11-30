@@ -5,6 +5,8 @@ import { BaseController, HttpMethod } from '../../libs/rest/index.js';
 import { Component } from '../../types/index.js';
 import type { Logger } from '../../libs/logger/index.js';
 import type { OfferService } from './offer-service.interface.js';
+import { fillRdo } from '../../helpers/index.js';
+import { OfferRdo } from './rdo/index.js';
 
 @injectable()
 export class OfferController extends BaseController {
@@ -22,7 +24,8 @@ export class OfferController extends BaseController {
 
   public async index(_req: Request, res: Response): Promise<void> {
     const offers = await this.offerService.findAll();
-    this.ok(res, offers);
+    const responseData = fillRdo(OfferRdo, offers);
+    this.ok(res, responseData);
   }
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment

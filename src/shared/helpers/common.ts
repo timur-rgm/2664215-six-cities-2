@@ -1,3 +1,6 @@
+import { plainToInstance } from 'class-transformer';
+import type { ClassConstructor } from 'class-transformer';
+
 export const getErrorMessage = (error: unknown): string | null => {
   if (error instanceof Error) {
     return error.message;
@@ -9,3 +12,7 @@ export const getErrorMessage = (error: unknown): string | null => {
 
   return null;
 };
+
+export const fillRdo = <T, V>(rdoClass: ClassConstructor<T>, data: V) =>
+  plainToInstance(rdoClass, data, { excludeExtraneousValues: true });
+
