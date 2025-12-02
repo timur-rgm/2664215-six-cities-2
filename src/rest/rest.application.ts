@@ -4,7 +4,7 @@ import { inject, injectable } from 'inversify';
 
 import { Component } from '../shared/types/index.js';
 import type { Config, RestSchema } from '../shared/libs/config/index.js';
-import type { Controller } from '../shared/libs/rest/index.js';
+import type { Controller, ExceptionFilter } from '../shared/libs/rest/index.js';
 import type { DatabaseClient } from '../shared/libs/database-client/index.js';
 import type { Logger } from '../shared/libs/logger/index.js';
 import { getMongoURI } from '../shared/helpers/index.js';
@@ -14,6 +14,7 @@ export class RestApplication {
   private readonly server: Express;
 
   constructor(
+    @inject(Component.ExceptionFilter) private readonly appExceptionFilter: ExceptionFilter,
     @inject(Component.Config) private readonly config: Config<RestSchema>,
     @inject(Component.DatabaseClient) private readonly databaseClient: DatabaseClient,
     @inject(Component.OfferController) private readonly offersController: Controller,
@@ -47,6 +48,10 @@ export class RestApplication {
     this.server.use('/offers', this.offersController.router);
   }
 
+  private initExceptionFilters() {
+    this.server.use(this.appExceptionFilter.catch.bind(this.appExceptionFilter));
+  }
+
   public async init() {
     this.logger.info('Application initialization');
     this.logger.info('Initializing database...');
@@ -60,6 +65,10 @@ export class RestApplication {
     this.logger.info('Init controllers');
     this.initControllers();
     this.logger.info('Controller initialization completed');
+
+    this.logger.info('Init exception filters');
+    this.initExceptionFilters();
+    this.logger.info('Exception filters initialization completed');
 
     this.logger.info('Try to init server…');
     this.initServer();
