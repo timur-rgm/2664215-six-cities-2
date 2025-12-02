@@ -2,11 +2,13 @@ import { inject, injectable } from 'inversify';
 import type { Request, Response } from 'express';
 
 import { BaseController, HttpMethod } from '../../libs/rest/index.js';
+import type { RequestWithBody } from '../../libs/rest/index.js';
 import { Component } from '../../types/index.js';
 import type { Logger } from '../../libs/logger/index.js';
 import type { OfferService } from './offer-service.interface.js';
 import { fillRdo } from '../../helpers/index.js';
 import { OfferRdo } from './rdo/index.js';
+import { CreateOfferDto } from './dto/index.js';
 
 @injectable()
 export class OfferController extends BaseController {
@@ -15,9 +17,7 @@ export class OfferController extends BaseController {
     @inject(Component.OfferService) private readonly offerService: OfferService
   ) {
     super(logger);
-
     this.logger.info('Register routes for OfferController…');
-
     this.addRoute({ path: '/', method: HttpMethod.Get, handler: this.index });
     this.addRoute({ path: '/', method: HttpMethod.Post, handler: this.create });
   }
@@ -28,9 +28,9 @@ export class OfferController extends BaseController {
     this.ok(res, responseData);
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  public create(req: Request, res: Response): void {
-    // Код обработчика
+  public async create(req: RequestWithBody<CreateOfferDto>, res: Response): Promise<void> {
+    const newOffer = await this.offerService.createOffer(req.body);
+    const offerRdo = fillRdo(OfferRdo, newOffer);
+    this.created(res, offerRdo);
   }
 }
