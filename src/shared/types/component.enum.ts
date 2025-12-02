@@ -3,6 +3,7 @@ export const Component = {
   CommentService: Symbol.for('CommentService'),
   Config: Symbol.for('Config'),
   DatabaseClient: Symbol.for('DatabaseClient'),
+  ExceptionFilter: Symbol.for('ExceptionFilter'),
   Logger: Symbol.for('Logger'),
   OfferController: Symbol.for('OfferController'),
   OfferModel: Symbol.for('OfferModel'),
