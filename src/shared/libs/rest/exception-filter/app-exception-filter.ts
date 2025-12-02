@@ -1,0 +1,25 @@
+import { injectable, inject } from 'inversify';
+import { StatusCodes } from 'http-status-codes';
+import type { NextFunction, Request, Response } from 'express';
+
+import type { ExceptionFilter } from './exception-filter.interface.js';
+import { Component } from '../../../types/index.js';
+import type { Logger } from '../../logger/index.js';
+import { Error } from 'mongoose';
+
+@injectable()
+export class AppExceptionFilter implements ExceptionFilter {
+  constructor(
+    @inject(Component.Logger) private readonly logger: Logger,
+  ) {
+    this.logger.info('Register AppExceptionFilter');
+  }
+
+  public catch(error: Error, _req: Request, res: Response, _next: NextFunction) {
+    this.logger.error(error.message, error);
+
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ error: error.message });
+  }
+}
