@@ -1,11 +1,14 @@
 import { inject, injectable } from 'inversify';
-import { DocumentType, types } from '@typegoose/typegoose';
+import { types } from '@typegoose/typegoose';
+import type { DocumentType } from '@typegoose/typegoose';
 
-import type { UserService } from './user-service.interface.js';
-import { UserEntity } from './user.entity.js';
 import { CreateUserDto, UpdateUserDto } from './dto/index.js';
 import { Component } from '../../types/index.js';
+import { HttpError } from '../../libs/rest/index.js';
+import { StatusCodes } from 'http-status-codes';
+import { UserEntity } from './user.entity.js';
 import type { Logger } from '../../libs/logger/index.js';
+import type { UserService } from './user-service.interface.js';
 
 @injectable()
 export class DefaultUserService implements UserService {
@@ -15,6 +18,16 @@ export class DefaultUserService implements UserService {
   ) {}
 
   public async create(dto: CreateUserDto, salt: string): Promise<DocumentType<UserEntity>> {
+    const existingUser = await this.findByEmail(dto.email);
+
+    if (existingUser) {
+      throw new HttpError(
+        StatusCodes.UNPROCESSABLE_ENTITY,
+        `User with email «${dto.email}» exists.`,
+        'DefaultUserService'
+      );
+    }
+
     const user = new UserEntity(dto);
     user.setPassword(dto.password, salt);
 
