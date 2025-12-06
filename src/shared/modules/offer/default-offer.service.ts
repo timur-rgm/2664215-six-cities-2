@@ -3,10 +3,12 @@ import { types } from '@typegoose/typegoose';
 import type { DocumentType } from '@typegoose/typegoose';
 
 import { Component, City } from '../../types/index.js';
-import type { OfferService } from './offer-service.interface.js';
-import type { Logger } from '../../libs/logger/index.js';
-import { OfferEntity } from './offer.entity.js';
 import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
+import { HttpError } from '../../libs/rest/index.js';
+import { StatusCodes } from 'http-status-codes';
+import type { Logger } from '../../libs/logger/index.js';
+import type { OfferEntity } from './offer.entity.js';
+import type { OfferService } from './offer-service.interface.js';
 
 @injectable()
 export class DefaultOfferService implements OfferService {
@@ -19,7 +21,11 @@ export class DefaultOfferService implements OfferService {
     const existOffer = await this.offerModel.findOne({ title: offerData.title });
 
     if (existOffer) {
-      throw new Error(`Offer with name «${offerData.title}» exists.`);
+      throw new HttpError(
+        StatusCodes.UNPROCESSABLE_ENTITY,
+        `Offer with name «${offerData.title}» exists.`,
+        'DefaultOfferService'
+      );
     }
 
     const result = await this.offerModel.create(offerData);
