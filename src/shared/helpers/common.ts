@@ -16,3 +16,7 @@ export const getErrorMessage = (error: unknown): string | null => {
 export const fillRdo = <T, V>(rdoClass: ClassConstructor<T>, data: V) =>
   plainToInstance(rdoClass, data, { excludeExtraneousValues: true });
 
+export const createErrorObject = (message: string) => ({
+  error: message
+});
+
