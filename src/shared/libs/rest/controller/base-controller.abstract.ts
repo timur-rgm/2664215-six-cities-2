@@ -1,7 +1,8 @@
 import asyncHandler from 'express-async-handler';
 import { injectable } from 'inversify';
-import { Router, type Response } from 'express';
+import { Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
+import type { Response } from 'express';
 
 import type { Controller } from './controller.interface.js';
 import type { Logger } from '../../logger/index.js';
@@ -42,7 +43,7 @@ export abstract class BaseController implements Controller {
     this.send(res, StatusCodes.CREATED, data);
   }
 
-  public noContent<T>(res: Response, data: T): void {
-    this.send(res, StatusCodes.NO_CONTENT, data);
+  public noContent(res: Response): void {
+    res.sendStatus(StatusCodes.NO_CONTENT);
   }
 }

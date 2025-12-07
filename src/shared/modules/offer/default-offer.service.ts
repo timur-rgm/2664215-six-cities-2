@@ -34,6 +34,12 @@ export class DefaultOfferService implements OfferService {
     return result;
   }
 
+  public deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
+    return this.offerModel
+      .findByIdAndDelete(offerId)
+      .exec();
+  }
+
   public findAll(): Promise<DocumentType<OfferEntity>[]> {
     return this.offerModel
       .aggregate([
@@ -67,16 +73,16 @@ export class DefaultOfferService implements OfferService {
       .exec();
   }
 
-  public async findById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
+  public findAllFavorites(): Promise<DocumentType<OfferEntity>[]> {
     return this.offerModel
-      .findById(offerId)
+      .find({ isFavorite: true })
       .populate(['userId'])
       .exec();
   }
 
-  public findAllFavorites(): Promise<DocumentType<OfferEntity>[]> {
+  public async findById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
     return this.offerModel
-      .find({ isFavorite: true })
+      .findById(offerId)
       .populate(['userId'])
       .exec();
   }
@@ -92,12 +98,6 @@ export class DefaultOfferService implements OfferService {
     return this.offerModel
       .findByIdAndUpdate(offerId, offerData, { new: true })
       .populate(['userId'])
-      .exec();
-  }
-
-  public deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
-    return this.offerModel
-      .findByIdAndDelete(offerId)
       .exec();
   }
 }
