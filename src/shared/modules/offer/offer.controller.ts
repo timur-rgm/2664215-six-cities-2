@@ -20,6 +20,7 @@ export class OfferController extends BaseController {
     this.logger.info('Register routes for OfferController…');
     this.addRoute({ path: '/', method: HttpMethod.Get, handler: this.index });
     this.addRoute({ path: '/', method: HttpMethod.Post, handler: this.create });
+    this.addRoute({ path: '/:id', method: HttpMethod.Get, handler: this.show });
     this.addRoute({ path: '/:id', method: HttpMethod.Delete, handler: this.delete });
   }
 
@@ -38,5 +39,11 @@ export class OfferController extends BaseController {
   public async delete(req: Request, res: Response): Promise<void> {
     await this.offerService.deleteById(req.params.id);
     this.noContent(res);
+  }
+
+  public async show(req: Request, res: Response): Promise<void> {
+    const offer = await this.offerService.findById(req.params.id);
+    const responseData = fillRdo(OfferRdo, offer);
+    this.ok(res, responseData);
   }
 }

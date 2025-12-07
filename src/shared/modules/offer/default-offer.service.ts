@@ -81,10 +81,20 @@ export class DefaultOfferService implements OfferService {
   }
 
   public async findById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
-    return this.offerModel
+    const offer = await this.offerModel
       .findById(offerId)
       .populate(['userId'])
       .exec();
+
+    if (!offer) {
+      throw new HttpError(
+        StatusCodes.NOT_FOUND,
+        'Offer not found',
+        'DefaultOfferService'
+      );
+    }
+
+    return offer;
   }
 
   public findPremiumByCity(city: City): Promise<DocumentType<OfferEntity>[]> {
