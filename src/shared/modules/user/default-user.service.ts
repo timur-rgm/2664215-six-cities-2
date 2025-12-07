@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify';
 import { types } from '@typegoose/typegoose';
 import type { DocumentType } from '@typegoose/typegoose';
 
-import { CreateUserDto, UpdateUserDto } from './dto/index.js';
+import { CreateUserDto, LoginUserDto, UpdateUserDto } from './dto/index.js';
 import { Component } from '../../types/index.js';
 import { HttpError } from '../../libs/rest/index.js';
 import { StatusCodes } from 'http-status-codes';
@@ -17,7 +17,10 @@ export class DefaultUserService implements UserService {
     @inject(Component.UserModel) private readonly userModel: types.ModelType<UserEntity>
   ) {}
 
-  public async create(dto: CreateUserDto, salt: string): Promise<DocumentType<UserEntity>> {
+  public async create(
+    dto: CreateUserDto,
+    salt: string
+  ): Promise<DocumentType<UserEntity>> {
     const existingUser = await this.findByEmail(dto.email);
 
     if (existingUser) {
@@ -40,7 +43,10 @@ export class DefaultUserService implements UserService {
     return this.userModel.findOne({ email });
   }
 
-  public async findByEmailOrCreate(userData: CreateUserDto, salt: string):Promise<DocumentType<UserEntity>> {
+  public async findByEmailOrCreate(
+    userData: CreateUserDto,
+    salt: string
+  ): Promise<DocumentType<UserEntity>> {
     const user = await this.findByEmail(userData.email);
 
     if (user) {
@@ -50,7 +56,28 @@ export class DefaultUserService implements UserService {
     return this.create(userData, salt);
   }
 
-  public async updateUserById(userId: string, dto: UpdateUserDto): Promise<DocumentType<UserEntity> | null> {
+  public async login(dto: LoginUserDto) {
+    const existingUser = await this.findByEmail(dto.email);
+
+    if (!existingUser) {
+      throw new HttpError(
+        StatusCodes.UNAUTHORIZED,
+        `User with email ${dto.email} not found.`,
+        'DefaultUserService'
+      );
+    }
+
+    throw new HttpError(
+      StatusCodes.NOT_IMPLEMENTED,
+      'Not implemented',
+      'DefaultUserService',
+    );
+  }
+
+  public async updateUserById(
+    userId: string,
+    dto: UpdateUserDto
+  ): Promise<DocumentType<UserEntity> | null> {
     return this.userModel
       .findByIdAndUpdate(userId, dto, { new: true })
       .exec();
