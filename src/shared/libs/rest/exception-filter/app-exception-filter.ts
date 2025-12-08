@@ -15,6 +15,7 @@ export class AppExceptionFilter implements ExceptionFilter {
     @inject(Component.Logger) private readonly logger: Logger,
   ) {
     this.logger.info('Register AppExceptionFilter');
+    this.catch = this.catch.bind(this);
   }
 
   private handleHttpError(

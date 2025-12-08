@@ -4,8 +4,7 @@ import type { DocumentType } from '@typegoose/typegoose';
 
 import { Component, City } from '../../types/index.js';
 import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
-import { HttpError } from '../../libs/rest/index.js';
-import { StatusCodes } from 'http-status-codes';
+import { OfferAlreadyExistsError, OfferNotFoundError } from '../../libs/rest/index.js';
 import type { Logger } from '../../libs/logger/index.js';
 import type { OfferEntity } from './offer.entity.js';
 import type { OfferService } from './offer-service.interface.js';
@@ -21,11 +20,7 @@ export class DefaultOfferService implements OfferService {
     const existingOffer = await this.offerModel.findOne({ title: offerData.title });
 
     if (existingOffer) {
-      throw new HttpError(
-        StatusCodes.UNPROCESSABLE_ENTITY,
-        `Offer with name «${offerData.title}» exists.`,
-        'DefaultOfferService'
-      );
+      throw new OfferAlreadyExistsError(offerData.title);
     }
 
     const result = await this.offerModel.create(offerData);
@@ -80,18 +75,14 @@ export class DefaultOfferService implements OfferService {
       .exec();
   }
 
-  public async findById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
+  public async findById(offerId: string): Promise<DocumentType<OfferEntity>> {
     const offer = await this.offerModel
       .findById(offerId)
       .populate(['userId'])
       .exec();
 
     if (!offer) {
-      throw new HttpError(
-        StatusCodes.NOT_FOUND,
-        'Offer not found',
-        'DefaultOfferService'
-      );
+      throw new OfferNotFoundError();
     }
 
     return offer;

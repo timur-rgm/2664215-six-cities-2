@@ -1,11 +1,17 @@
 import { inject, injectable } from 'inversify';
 import type { Request, Response } from 'express';
 
-import { BaseController, HttpMethod } from '../../libs/rest/index.js';
+import {
+  BaseController,
+  HttpError,
+  HttpMethod,
+  OfferAlreadyExistsError,
+  OfferNotFoundError } from '../../libs/rest/index.js';
 import { Component } from '../../types/index.js';
 import { CreateOfferDto } from './dto/index.js';
 import { fillRdo } from '../../helpers/index.js';
 import { OfferRdo } from './rdo/index.js';
+import { StatusCodes } from 'http-status-codes';
 import type { Logger } from '../../libs/logger/index.js';
 import type { OfferService } from './offer-service.interface.js';
 import type { RequestWithBody } from '../../libs/rest/index.js';
@@ -31,9 +37,21 @@ export class OfferController extends BaseController {
   }
 
   public async create(req: RequestWithBody<CreateOfferDto>, res: Response): Promise<void> {
-    const newOffer = await this.offerService.createOffer(req.body);
-    const offerRdo = fillRdo(OfferRdo, newOffer);
-    this.created(res, offerRdo);
+    try {
+      const newOffer = await this.offerService.createOffer(req.body);
+      const offerRdo = fillRdo(OfferRdo, newOffer);
+      this.created(res, offerRdo);
+    } catch (error) {
+      if (error instanceof OfferAlreadyExistsError) {
+        throw new HttpError(
+          StatusCodes.UNPROCESSABLE_ENTITY,
+          error.message,
+          'OfferController'
+        );
+      }
+
+      throw error;
+    }
   }
 
   public async delete(req: Request, res: Response): Promise<void> {
@@ -42,8 +60,20 @@ export class OfferController extends BaseController {
   }
 
   public async show(req: Request, res: Response): Promise<void> {
-    const offer = await this.offerService.findById(req.params.id);
-    const responseData = fillRdo(OfferRdo, offer);
-    this.ok(res, responseData);
+    try {
+      const offer = await this.offerService.findById(req.params.id);
+      const responseData = fillRdo(OfferRdo, offer);
+      this.ok(res, responseData);
+    } catch (error) {
+      if (error instanceof OfferNotFoundError) {
+        throw new HttpError(
+          StatusCodes.NOT_FOUND,
+          error.message,
+          'OfferController'
+        );
+      }
+
+      throw error;
+    }
   }
 }

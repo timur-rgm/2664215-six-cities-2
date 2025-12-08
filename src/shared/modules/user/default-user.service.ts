@@ -4,8 +4,10 @@ import type { DocumentType } from '@typegoose/typegoose';
 
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from './dto/index.js';
 import { Component } from '../../types/index.js';
-import { HttpError } from '../../libs/rest/index.js';
-import { StatusCodes } from 'http-status-codes';
+import {
+  NotImplementedError,
+  UserAlreadyExistsError,
+  UserNotFoundError } from '../../libs/rest/index.js';
 import { UserEntity } from './user.entity.js';
 import type { Logger } from '../../libs/logger/index.js';
 import type { UserService } from './user-service.interface.js';
@@ -24,11 +26,7 @@ export class DefaultUserService implements UserService {
     const existingUser = await this.findByEmail(dto.email);
 
     if (existingUser) {
-      throw new HttpError(
-        StatusCodes.UNPROCESSABLE_ENTITY,
-        `User with email «${dto.email}» exists.`,
-        'DefaultUserService'
-      );
+      throw new UserAlreadyExistsError(dto.email);
     }
 
     const user = new UserEntity(dto);
@@ -60,18 +58,10 @@ export class DefaultUserService implements UserService {
     const existingUser = await this.findByEmail(dto.email);
 
     if (!existingUser) {
-      throw new HttpError(
-        StatusCodes.UNAUTHORIZED,
-        `User with email ${dto.email} not found.`,
-        'DefaultUserService'
-      );
+      throw new UserNotFoundError(dto.email);
     }
 
-    throw new HttpError(
-      StatusCodes.NOT_IMPLEMENTED,
-      'Not implemented',
-      'DefaultUserService',
-    );
+    throw new NotImplementedError();
   }
 
   public async updateUserById(
