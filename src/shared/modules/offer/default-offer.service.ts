@@ -3,10 +3,11 @@ import { types } from '@typegoose/typegoose';
 import type { DocumentType } from '@typegoose/typegoose';
 
 import { Component, City } from '../../types/index.js';
-import type { OfferService } from './offer-service.interface.js';
-import type { Logger } from '../../libs/logger/index.js';
-import { OfferEntity } from './offer.entity.js';
 import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
+import { OfferAlreadyExistsError, OfferNotFoundError } from '../../libs/rest/index.js';
+import type { Logger } from '../../libs/logger/index.js';
+import type { OfferEntity } from './offer.entity.js';
+import type { OfferService } from './offer-service.interface.js';
 
 @injectable()
 export class DefaultOfferService implements OfferService {
@@ -16,9 +17,22 @@ export class DefaultOfferService implements OfferService {
   ) {}
 
   public async createOffer(offerData: CreateOfferDto): Promise<DocumentType<OfferEntity>> {
+    const existingOffer = await this.offerModel.findOne({ title: offerData.title });
+
+    if (existingOffer) {
+      throw new OfferAlreadyExistsError(offerData.title);
+    }
+
     const result = await this.offerModel.create(offerData);
     this.logger.info(`New offer created: ${offerData.title}`);
+
     return result;
+  }
+
+  public deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
+    return this.offerModel
+      .findByIdAndDelete(offerId)
+      .exec();
   }
 
   public findAll(): Promise<DocumentType<OfferEntity>[]> {
@@ -54,18 +68,24 @@ export class DefaultOfferService implements OfferService {
       .exec();
   }
 
-  public async findById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
-    return this.offerModel
-      .findById(offerId)
-      .populate(['userId'])
-      .exec();
-  }
-
   public findAllFavorites(): Promise<DocumentType<OfferEntity>[]> {
     return this.offerModel
       .find({ isFavorite: true })
       .populate(['userId'])
       .exec();
+  }
+
+  public async findById(offerId: string): Promise<DocumentType<OfferEntity>> {
+    const offer = await this.offerModel
+      .findById(offerId)
+      .populate(['userId'])
+      .exec();
+
+    if (!offer) {
+      throw new OfferNotFoundError();
+    }
+
+    return offer;
   }
 
   public findPremiumByCity(city: City): Promise<DocumentType<OfferEntity>[]> {
@@ -79,12 +99,6 @@ export class DefaultOfferService implements OfferService {
     return this.offerModel
       .findByIdAndUpdate(offerId, offerData, { new: true })
       .populate(['userId'])
-      .exec();
-  }
-
-  public deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
-    return this.offerModel
-      .findByIdAndDelete(offerId)
       .exec();
   }
 }
