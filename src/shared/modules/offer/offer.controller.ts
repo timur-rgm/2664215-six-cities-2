@@ -6,7 +6,9 @@ import {
   HttpError,
   HttpMethod,
   OfferAlreadyExistsError,
-  OfferNotFoundError } from '../../libs/rest/index.js';
+  OfferNotFoundError,
+  type RequestWithBody,
+  type RequestWithParams } from '../../libs/rest/index.js';
 import { Component } from '../../types/index.js';
 import { CreateOfferDto } from './dto/index.js';
 import { fillRdo } from '../../helpers/index.js';
@@ -14,7 +16,6 @@ import { OfferRdo } from './rdo/index.js';
 import { StatusCodes } from 'http-status-codes';
 import type { Logger } from '../../libs/logger/index.js';
 import type { OfferService } from './offer-service.interface.js';
-import type { RequestWithBody } from '../../libs/rest/index.js';
 
 @injectable()
 export class OfferController extends BaseController {
@@ -26,8 +27,8 @@ export class OfferController extends BaseController {
     this.logger.info('Register routes for OfferController…');
     this.addRoute({ path: '/', method: HttpMethod.Get, handler: this.index });
     this.addRoute({ path: '/', method: HttpMethod.Post, handler: this.create });
-    this.addRoute({ path: '/:id', method: HttpMethod.Get, handler: this.show });
-    this.addRoute({ path: '/:id', method: HttpMethod.Delete, handler: this.delete });
+    this.addRoute({ path: '/:offerId', method: HttpMethod.Get, handler: this.show });
+    this.addRoute({ path: '/:offerId', method: HttpMethod.Delete, handler: this.delete });
   }
 
   public async index(_req: Request, res: Response): Promise<void> {
@@ -54,14 +55,20 @@ export class OfferController extends BaseController {
     }
   }
 
-  public async delete(req: Request, res: Response): Promise<void> {
-    await this.offerService.deleteById(req.params.id);
+  public async delete(
+    req: RequestWithParams<{ offerId: string }>,
+    res: Response
+  ): Promise<void> {
+    await this.offerService.deleteById(req.params.offerId);
     this.noContent(res);
   }
 
-  public async show(req: Request, res: Response): Promise<void> {
+  public async show(
+    req: RequestWithParams<{ offerId: string }>,
+    res: Response
+  ): Promise<void> {
     try {
-      const offer = await this.offerService.findById(req.params.id);
+      const offer = await this.offerService.findById(req.params.offerId);
       const responseData = fillRdo(OfferRdo, offer);
       this.ok(res, responseData);
     } catch (error) {
