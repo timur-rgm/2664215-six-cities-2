@@ -26,8 +26,8 @@ export class OfferController extends BaseController {
     super(logger);
     this.logger.info('Register routes for OfferController…');
     this.addRoute({ path: '/', method: HttpMethod.Get, handler: this.index });
-    this.addRoute({ path: '/', method: HttpMethod.Post, handler: this.create });
     this.addRoute({ path: '/:offerId', method: HttpMethod.Get, handler: this.show });
+    this.addRoute({ path: '/', method: HttpMethod.Post, handler: this.create });
     this.addRoute({ path: '/:offerId', method: HttpMethod.Delete, handler: this.delete });
   }
 
@@ -35,6 +35,27 @@ export class OfferController extends BaseController {
     const offers = await this.offerService.findAll();
     const responseData = fillRdo(OfferRdo, offers);
     this.ok(res, responseData);
+  }
+
+  public async show(
+    req: RequestWithParams<{ offerId: string }>,
+    res: Response
+  ): Promise<void> {
+    try {
+      const offer = await this.offerService.findById(req.params.offerId);
+      const responseData = fillRdo(OfferRdo, offer);
+      this.ok(res, responseData);
+    } catch (error) {
+      if (error instanceof OfferNotFoundError) {
+        throw new HttpError(
+          StatusCodes.NOT_FOUND,
+          error.message,
+          'OfferController'
+        );
+      }
+
+      throw error;
+    }
   }
 
   public async create(req: RequestWithBody<CreateOfferDto>, res: Response): Promise<void> {
@@ -61,26 +82,5 @@ export class OfferController extends BaseController {
   ): Promise<void> {
     await this.offerService.deleteById(req.params.offerId);
     this.noContent(res);
-  }
-
-  public async show(
-    req: RequestWithParams<{ offerId: string }>,
-    res: Response
-  ): Promise<void> {
-    try {
-      const offer = await this.offerService.findById(req.params.offerId);
-      const responseData = fillRdo(OfferRdo, offer);
-      this.ok(res, responseData);
-    } catch (error) {
-      if (error instanceof OfferNotFoundError) {
-        throw new HttpError(
-          StatusCodes.NOT_FOUND,
-          error.message,
-          'OfferController'
-        );
-      }
-
-      throw error;
-    }
   }
 }
