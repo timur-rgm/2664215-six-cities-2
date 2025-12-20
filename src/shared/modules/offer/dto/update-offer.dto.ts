@@ -1,4 +1,9 @@
-import type { Amenity, City, Coordinates, HousingType } from '../../../types/index.js';
+import {
+  Amenity,
+  City,
+  HousingType,
+  type Coordinates
+} from '../../../types/index.js';
 
 export class UpdateOfferDto {
   public title?: string;

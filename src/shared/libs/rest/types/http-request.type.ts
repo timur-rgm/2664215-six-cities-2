@@ -13,6 +13,9 @@ export type RequestWithBody<TBody> =
 export type RequestWithParams<TParams> =
   TypedRequest<undefined, TParams | ParamsDictionary>;
 
+export type RequestWithBodyAndParams<TBody, TParams> =
+  TypedRequest<TBody, TParams | ParamsDictionary>;
+
 export type RequestWithQuery<TQuery> =
   TypedRequest<undefined, Record<string, unknown>, TQuery>;
 

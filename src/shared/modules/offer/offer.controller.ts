@@ -7,10 +7,11 @@ import {
   HttpMethod,
   OfferAlreadyExistsError,
   OfferNotFoundError,
-  type RequestWithBody,
-  type RequestWithParams } from '../../libs/rest/index.js';
+  type RequestWithBody, RequestWithBodyAndParams,
+  type RequestWithParams
+} from '../../libs/rest/index.js';
 import { Component } from '../../types/index.js';
-import { CreateOfferDto } from './dto/index.js';
+import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
 import { fillRdo } from '../../helpers/index.js';
 import { OfferRdo } from './rdo/index.js';
 import { StatusCodes } from 'http-status-codes';
@@ -20,29 +21,37 @@ import type { OfferService } from './offer-service.interface.js';
 @injectable()
 export class OfferController extends BaseController {
   constructor(
-    @inject(Component.Logger) protected readonly logger: Logger,
-    @inject(Component.OfferService) private readonly offerService: OfferService
+    @inject(Component.Logger)
+    protected readonly logger: Logger,
+
+    @inject(Component.OfferService)
+    private readonly offerService: OfferService
   ) {
     super(logger);
     this.logger.info('Register routes for OfferController…');
+
     this.addRoute({ path: '/', method: HttpMethod.Get, handler: this.index });
     this.addRoute({ path: '/:offerId', method: HttpMethod.Get, handler: this.show });
     this.addRoute({ path: '/', method: HttpMethod.Post, handler: this.create });
+    this.addRoute({ path: '/:offerId', method: HttpMethod.Patch, handler: this.update });
     this.addRoute({ path: '/:offerId', method: HttpMethod.Delete, handler: this.delete });
   }
 
-  public async index(_req: Request, res: Response): Promise<void> {
+  public async index(
+    _req: Request,
+    res: Response
+  ): Promise<void> {
     const offers = await this.offerService.findAll();
     const responseData = fillRdo(OfferRdo, offers);
     this.ok(res, responseData);
   }
 
   public async show(
-    req: RequestWithParams<{ offerId: string }>,
+    { params }: RequestWithParams<{ offerId: string }>,
     res: Response
   ): Promise<void> {
     try {
-      const offer = await this.offerService.findById(req.params.offerId);
+      const offer = await this.offerService.findById(params.offerId);
       const responseData = fillRdo(OfferRdo, offer);
       this.ok(res, responseData);
     } catch (error) {
@@ -58,9 +67,12 @@ export class OfferController extends BaseController {
     }
   }
 
-  public async create(req: RequestWithBody<CreateOfferDto>, res: Response): Promise<void> {
+  public async create(
+    { body }: RequestWithBody<CreateOfferDto>,
+    res: Response
+  ): Promise<void> {
     try {
-      const newOffer = await this.offerService.createOffer(req.body);
+      const newOffer = await this.offerService.createOffer(body);
       const offerRdo = fillRdo(OfferRdo, newOffer);
       this.created(res, offerRdo);
     } catch (error) {
@@ -76,11 +88,35 @@ export class OfferController extends BaseController {
     }
   }
 
-  public async delete(
-    req: RequestWithParams<{ offerId: string }>,
+  public async update(
+    { params, body }: RequestWithBodyAndParams<UpdateOfferDto, {offerId: string}>,
     res: Response
   ): Promise<void> {
-    await this.offerService.deleteById(req.params.offerId);
+    try {
+      const updatedOffer = await this.offerService.updateById(
+        params.offerId, body
+      );
+
+      const offerRdo = fillRdo(OfferRdo, updatedOffer);
+      this.ok(res, offerRdo);
+    } catch (error) {
+      if (error instanceof OfferNotFoundError) {
+        throw new HttpError(
+          StatusCodes.NOT_FOUND,
+          error.message,
+          'OfferController'
+        );
+      }
+
+      throw error;
+    }
+  }
+
+  public async delete(
+    { params }: RequestWithParams<{ offerId: string }>,
+    res: Response
+  ): Promise<void> {
+    await this.offerService.deleteById(params.offerId);
     this.noContent(res);
   }
 }
