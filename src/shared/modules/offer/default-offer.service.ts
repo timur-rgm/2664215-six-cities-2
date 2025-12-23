@@ -21,7 +21,8 @@ export class DefaultOfferService implements OfferService {
 
   public findAll(
     city?: City,
-    isPremium?: boolean
+    isPremium?: boolean,
+    isFavorite?: boolean,
   ): Promise<DocumentType<OfferEntity>[]> {
     const match: Record<string, unknown> = {};
 
@@ -31,6 +32,10 @@ export class DefaultOfferService implements OfferService {
 
     if (isPremium !== undefined) {
       match.isPremium = isPremium;
+    }
+
+    if (isFavorite !== undefined) {
+      match.isFavorite = isFavorite;
     }
 
     const pipeline: PipelineStage[] = [];

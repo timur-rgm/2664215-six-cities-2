@@ -50,15 +50,20 @@ export class OfferController extends BaseController {
   }
 
   public async index(
-    req: RequestWithQuery<{ city?: City, isPremium?: string }>,
+    req: RequestWithQuery<{
+      city?: City,
+      isPremium?: string,
+      isFavorite?: string,
+    }>,
     res: Response
   ): Promise<void> {
     const { query } = req;
-    const { city, isPremium } = query;
+    const { city, isPremium, isFavorite } = query;
 
     const offers = await this.offerService.findAll(
       city,
-      parseBooleanString(isPremium)
+      parseBooleanString(isPremium),
+      parseBooleanString(isFavorite)
     );
     const responseData = fillRdo(OfferRdo, offers);
     this.ok(res, responseData);
