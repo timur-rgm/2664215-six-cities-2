@@ -125,4 +125,20 @@ export class DefaultOfferService implements OfferService {
 
     return updatedOffer;
   }
+
+  public async setIsFavorite(
+    offerId: string,
+    isFavorite: boolean
+  ): Promise<DocumentType<OfferEntity>> {
+    const updatedOffer = await this.offerModel
+      .findByIdAndUpdate(offerId, { isFavorite }, { new: true })
+      .populate(['userId'])
+      .exec();
+
+    if (!updatedOffer) {
+      throw new OfferNotFoundError();
+    }
+
+    return updatedOffer;
+  }
 }

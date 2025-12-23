@@ -32,18 +32,30 @@ export class OfferController extends BaseController {
     super(logger);
     this.logger.info('Register routes for OfferController…');
 
-    this.addRoute({ path: '/', method: HttpMethod.Get, handler: this.index });
+    this.addRoute({path: '/', method: HttpMethod.Get, handler: this.index });
     this.addRoute({ path: '/:offerId', method: HttpMethod.Get, handler: this.show });
     this.addRoute({ path: '/', method: HttpMethod.Post, handler: this.create });
     this.addRoute({ path: '/:offerId', method: HttpMethod.Patch, handler: this.update });
     this.addRoute({ path: '/:offerId', method: HttpMethod.Delete, handler: this.delete });
+    this.addRoute({
+      path: '/:offerId/favorite',
+      method: HttpMethod.Put,
+      handler: this.addToFavorites
+    });
+    this.addRoute({
+      path: '/:offerId/favorite',
+      method: HttpMethod.Delete,
+      handler: this.removeFromFavorites
+    });
   }
 
   public async index(
-    { query }: RequestWithQuery<{ city?: City, isPremium?: string }>,
+    req: RequestWithQuery<{ city?: City, isPremium?: string }>,
     res: Response
   ): Promise<void> {
+    const { query } = req;
     const { city, isPremium } = query;
+
     const offers = await this.offerService.findAll(
       city,
       parseBooleanString(isPremium)
@@ -53,9 +65,11 @@ export class OfferController extends BaseController {
   }
 
   public async show(
-    { params }: RequestWithParams<{ offerId: string }>,
+    req: RequestWithParams<{ offerId: string }>,
     res: Response
   ): Promise<void> {
+    const { params } = req;
+
     try {
       const offer = await this.offerService.findById(params.offerId);
       const responseData = fillRdo(OfferRdo, offer);
@@ -74,9 +88,11 @@ export class OfferController extends BaseController {
   }
 
   public async create(
-    { body }: RequestWithBody<CreateOfferDto>,
+    req: RequestWithBody<CreateOfferDto>,
     res: Response
   ): Promise<void> {
+    const { body } = req;
+
     try {
       const newOffer = await this.offerService.createOffer(body);
       const offerRdo = fillRdo(OfferRdo, newOffer);
@@ -95,9 +111,11 @@ export class OfferController extends BaseController {
   }
 
   public async update(
-    { params, body }: RequestWithBodyAndParams<UpdateOfferDto, {offerId: string}>,
+    req: RequestWithBodyAndParams<UpdateOfferDto, { offerId: string }>,
     res: Response
   ): Promise<void> {
+    const { params, body } = req;
+
     try {
       const updatedOffer = await this.offerService.updateById(
         params.offerId, body
@@ -119,10 +137,64 @@ export class OfferController extends BaseController {
   }
 
   public async delete(
-    { params }: RequestWithParams<{ offerId: string }>,
+    req: RequestWithParams<{ offerId: string }>,
     res: Response
   ): Promise<void> {
+    const { params } = req;
+
     await this.offerService.deleteById(params.offerId);
     this.noContent(res);
+  }
+
+  public async addToFavorites(
+    req: RequestWithParams<{ offerId: string }>,
+    res: Response
+  ): Promise<void> {
+    const { params } = req;
+
+    try {
+      const updatedOffer = await this.offerService.setIsFavorite(
+        params.offerId,
+        true
+      );
+      const offerRdo = fillRdo(OfferRdo, updatedOffer);
+      this.ok(res, offerRdo);
+    } catch (error) {
+      if (error instanceof OfferNotFoundError) {
+        throw new HttpError(
+          StatusCodes.NOT_FOUND,
+          error.message,
+          'OfferController'
+        );
+      }
+
+      throw error;
+    }
+  }
+
+  public async removeFromFavorites(
+    req: RequestWithParams<{ offerId: string }>,
+    res: Response
+  ): Promise<void> {
+    const { params } = req;
+
+    try {
+      const updatedOffer = await this.offerService.setIsFavorite(
+        params.offerId,
+        false
+      );
+      const offerRdo = fillRdo(OfferRdo, updatedOffer);
+      this.ok(res, offerRdo);
+    } catch (error) {
+      if (error instanceof OfferNotFoundError) {
+        throw new HttpError(
+          StatusCodes.NOT_FOUND,
+          error.message,
+          'OfferController'
+        );
+      }
+
+      throw error;
+    }
   }
 }
