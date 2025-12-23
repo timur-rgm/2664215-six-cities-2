@@ -1,6 +1,5 @@
 import { inject, injectable } from 'inversify';
 import { types, type DocumentType } from '@typegoose/typegoose';
-import type { PipelineStage } from 'mongoose';
 
 import { Component, City } from '../../types/index.js';
 import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
@@ -24,56 +23,43 @@ export class DefaultOfferService implements OfferService {
     isPremium?: boolean,
     isFavorite?: boolean,
   ): Promise<DocumentType<OfferEntity>[]> {
-    const match: Record<string, unknown> = {};
-
-    if (city) {
-      match.city = city;
-    }
-
-    if (isPremium !== undefined) {
-      match.isPremium = isPremium;
-    }
-
-    if (isFavorite !== undefined) {
-      match.isFavorite = isFavorite;
-    }
-
-    const pipeline: PipelineStage[] = [];
-
-    if (Object.keys(match).length > 0) {
-      pipeline.push({ $match: match });
-    }
-
-    pipeline.push(
-      {
-        $lookup: {
-          from: 'comments',
-          let: { offerId: '$_id' },
-          pipeline: [
-            { $match: { $expr: { $eq: ['$offerId', '$$offerId'] } } },
-            { $project: { _id: 1}}
-          ],
-          as: 'comments',
-        }
-      },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'userId',
-          foreignField: '_id',
-          as: 'userId'
-        }
-      },
-      {
-        $unwind: '$userId'
-      },
-      { $addFields:
-            { id: { $toString: '$_id'}, commentCount: { $size: '$comments'} }
-      },
-      { $unset: 'comments' },
-    );
-
-    return this.offerModel.aggregate(pipeline).exec();
+    return this.offerModel
+      .aggregate([
+        {
+          $match: {
+            ...(city && { city }),
+            ...(isPremium !== undefined && { isPremium }),
+            ...(isFavorite !== undefined && { isFavorite }),
+          }
+        },
+        {
+          $lookup: {
+            from: 'comments',
+            let: { offerId: '$_id' },
+            pipeline: [
+              { $match: { $expr: { $eq: ['$offerId', '$$offerId'] } } },
+              { $project: { _id: 1}}
+            ],
+            as: 'comments',
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'userId',
+            foreignField: '_id',
+            as: 'userId'
+          }
+        },
+        {
+          $unwind: '$userId'
+        },
+        { $addFields:
+          { id: { $toString: '$_id'}, commentCount: { $size: '$comments'} }
+        },
+        { $unset: 'comments' },
+      ])
+      .exec();
   }
 
   public async findById(offerId: string): Promise<DocumentType<OfferEntity>> {
