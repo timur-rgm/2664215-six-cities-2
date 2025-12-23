@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import type { Request, Response } from 'express';
+import type { Response } from 'express';
 
 import {
   BaseController,
@@ -7,12 +7,14 @@ import {
   HttpMethod,
   OfferAlreadyExistsError,
   OfferNotFoundError,
-  type RequestWithBody, RequestWithBodyAndParams,
-  type RequestWithParams
+  type RequestWithBody,
+  type RequestWithBodyAndParams,
+  type RequestWithQuery,
+  type RequestWithParams,
 } from '../../libs/rest/index.js';
-import { Component } from '../../types/index.js';
+import { City, Component } from '../../types/index.js';
 import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
-import { fillRdo } from '../../helpers/index.js';
+import { fillRdo, parseBooleanString } from '../../helpers/index.js';
 import { OfferRdo } from './rdo/index.js';
 import { StatusCodes } from 'http-status-codes';
 import type { Logger } from '../../libs/logger/index.js';
@@ -38,10 +40,14 @@ export class OfferController extends BaseController {
   }
 
   public async index(
-    _req: Request,
+    { query }: RequestWithQuery<{ city?: City, isPremium?: string }>,
     res: Response
   ): Promise<void> {
-    const offers = await this.offerService.findAll();
+    const { city, isPremium } = query;
+    const offers = await this.offerService.findAll(
+      city,
+      parseBooleanString(isPremium)
+    );
     const responseData = fillRdo(OfferRdo, offers);
     this.ok(res, responseData);
   }

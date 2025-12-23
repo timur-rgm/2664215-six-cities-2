@@ -1,5 +1,6 @@
 import { inject, injectable } from 'inversify';
 import { types, type DocumentType } from '@typegoose/typegoose';
+import type { PipelineStage } from 'mongoose';
 
 import { Component, City } from '../../types/index.js';
 import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
@@ -17,6 +18,71 @@ export class DefaultOfferService implements OfferService {
     @inject(Component.OfferModel)
     private readonly offerModel: types.ModelType<OfferEntity>,
   ) {}
+
+  public findAll(
+    city?: City,
+    isPremium?: boolean
+  ): Promise<DocumentType<OfferEntity>[]> {
+    const match: Record<string, unknown> = {};
+
+    if (city) {
+      match.city = city;
+    }
+
+    if (isPremium !== undefined) {
+      match.isPremium = isPremium;
+    }
+
+    const pipeline: PipelineStage[] = [];
+
+    if (Object.keys(match).length > 0) {
+      pipeline.push({ $match: match });
+    }
+
+    pipeline.push(
+      {
+        $lookup: {
+          from: 'comments',
+          let: { offerId: '$_id' },
+          pipeline: [
+            { $match: { $expr: { $eq: ['$offerId', '$$offerId'] } } },
+            { $project: { _id: 1}}
+          ],
+          as: 'comments',
+        }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'userId'
+        }
+      },
+      {
+        $unwind: '$userId'
+      },
+      { $addFields:
+            { id: { $toString: '$_id'}, commentCount: { $size: '$comments'} }
+      },
+      { $unset: 'comments' },
+    );
+
+    return this.offerModel.aggregate(pipeline).exec();
+  }
+
+  public async findById(offerId: string): Promise<DocumentType<OfferEntity>> {
+    const offer = await this.offerModel
+      .findById(offerId)
+      .populate(['userId'])
+      .exec();
+
+    if (!offer) {
+      throw new OfferNotFoundError();
+    }
+
+    return offer;
+  }
 
   public async createOffer(offerData: CreateOfferDto): Promise<DocumentType<OfferEntity>> {
     const existingOffer = await this.offerModel.findOne({ title: offerData.title });
@@ -37,62 +103,9 @@ export class DefaultOfferService implements OfferService {
       .exec();
   }
 
-  public findAll(): Promise<DocumentType<OfferEntity>[]> {
-    return this.offerModel
-      .aggregate([
-        {
-          $lookup: {
-            from: 'comments',
-            let: { offerId: '$_id' },
-            pipeline: [
-              { $match: { $expr: { $eq: ['$offerId', '$$offerId'] } } },
-              { $project: { _id: 1}}
-            ],
-            as: 'comments',
-          }
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'userId',
-            foreignField: '_id',
-            as: 'userId'
-          }
-        },
-        {
-          $unwind: '$userId'
-        },
-        { $addFields:
-            { id: { $toString: '$_id'}, commentCount: { $size: '$comments'} }
-        },
-        { $unset: 'comments' },
-      ])
-      .exec();
-  }
-
   public findAllFavorites(): Promise<DocumentType<OfferEntity>[]> {
     return this.offerModel
       .find({ isFavorite: true })
-      .populate(['userId'])
-      .exec();
-  }
-
-  public async findById(offerId: string): Promise<DocumentType<OfferEntity>> {
-    const offer = await this.offerModel
-      .findById(offerId)
-      .populate(['userId'])
-      .exec();
-
-    if (!offer) {
-      throw new OfferNotFoundError();
-    }
-
-    return offer;
-  }
-
-  public findPremiumByCity(city: City): Promise<DocumentType<OfferEntity>[]> {
-    return this.offerModel
-      .find({ city, isPremium: true })
       .populate(['userId'])
       .exec();
   }
