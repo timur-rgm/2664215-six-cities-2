@@ -17,7 +17,9 @@ export class DefaultCommentService implements CommentService {
     private readonly offerService: OfferService,
   ) {}
 
-  public async createComment(commentData: CreateCommentDto): Promise<DocumentType<CommentEntity>> {
+  public async createComment(
+    commentData: CreateCommentDto
+  ): Promise<DocumentType<CommentEntity>> {
     const comment = await this.commentModel.create(commentData);
     const { offerId } = comment;
 
@@ -36,14 +38,18 @@ export class DefaultCommentService implements CommentService {
     return comment.populate('userId');
   }
 
-  public async findCommentByOfferId(offerId: string): Promise<DocumentType<CommentEntity>[]> {
+  public async findCommentByOfferId(
+    offerId: string
+  ): Promise<DocumentType<CommentEntity>[]> {
     return this.commentModel
       .find({ offerId })
       .populate('userId')
       .exec();
   }
 
-  public async deleteCommentByOfferId(offerId: string): Promise<number> {
+  public async deleteCommentByOfferId(
+    offerId: string
+  ): Promise<number> {
     const result = await this.commentModel
       .deleteMany({ offerId })
       .exec();

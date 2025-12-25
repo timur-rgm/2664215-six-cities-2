@@ -13,16 +13,21 @@ import {
   type RequestWithParams,
 } from '../../libs/rest/index.js';
 import { City, Component } from '../../types/index.js';
+import { CommentRdo } from '../comment/rdo/index.js';
 import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
 import { fillRdo, parseBooleanString } from '../../helpers/index.js';
 import { OfferRdo } from './rdo/index.js';
 import { StatusCodes } from 'http-status-codes';
+import type{ CommentService } from '../comment/index.js';
 import type { Logger } from '../../libs/logger/index.js';
 import type { OfferService } from './offer-service.interface.js';
 
 @injectable()
 export class OfferController extends BaseController {
   constructor(
+    @inject(Component.CommentService)
+    private readonly commentService: CommentService,
+
     @inject(Component.Logger)
     protected readonly logger: Logger,
 
@@ -46,6 +51,11 @@ export class OfferController extends BaseController {
       path: '/:offerId/favorite',
       method: HttpMethod.Delete,
       handler: this.removeFromFavorites
+    });
+    this.addRoute({
+      path: '/:offerId/comments',
+      method: HttpMethod.Get,
+      handler: this.getComments
     });
   }
 
@@ -201,5 +211,31 @@ export class OfferController extends BaseController {
 
       throw error;
     }
+  }
+
+  public async getComments(
+    req: RequestWithParams<{ offerId: string }>,
+    res: Response
+  ): Promise<void> {
+    const { params } = req;
+    const { offerId } = params;
+
+    try {
+      await this.offerService.findById(offerId);
+      const comments = await this.commentService.findCommentByOfferId(offerId);
+      const commentsRdo = fillRdo(CommentRdo, comments);
+      this.ok(res, commentsRdo);
+    } catch(error) {
+      if (error instanceof OfferNotFoundError) {
+        throw new HttpError(
+          StatusCodes.NOT_FOUND,
+          error.message,
+          'OfferController'
+        );
+      }
+
+      throw error;
+    }
+
   }
 }
