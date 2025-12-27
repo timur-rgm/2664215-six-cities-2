@@ -31,7 +31,11 @@ export class CommentController extends BaseController {
   ) {
     super(logger);
     this.logger.info('Register routes for CommentController…');
-    this.addRoute({ path: '/', method: HttpMethod.Post, handler: this.create });
+    this.addRoute({
+      path: '/',
+      method: HttpMethod.Post,
+      handler: this.create
+    });
   }
 
   public async create(

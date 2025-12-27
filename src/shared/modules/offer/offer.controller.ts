@@ -7,6 +7,7 @@ import {
   HttpMethod,
   OfferAlreadyExistsError,
   OfferNotFoundError,
+  ValidateMongoObjectIdMiddleware,
   type RequestWithBody,
   type RequestWithBodyAndParams,
   type RequestWithQuery,
@@ -37,25 +38,51 @@ export class OfferController extends BaseController {
     super(logger);
     this.logger.info('Register routes for OfferController…');
 
-    this.addRoute({path: '/', method: HttpMethod.Get, handler: this.index });
-    this.addRoute({ path: '/:offerId', method: HttpMethod.Get, handler: this.show });
-    this.addRoute({ path: '/', method: HttpMethod.Post, handler: this.create });
-    this.addRoute({ path: '/:offerId', method: HttpMethod.Patch, handler: this.update });
-    this.addRoute({ path: '/:offerId', method: HttpMethod.Delete, handler: this.delete });
+    this.addRoute({
+      path: '/',
+      method: HttpMethod.Get,
+      handler: this.index
+    });
+    this.addRoute({
+      path: '/:offerId',
+      method: HttpMethod.Get,
+      handler: this.show,
+      middlewares: [new ValidateMongoObjectIdMiddleware('offerId')]
+    });
+    this.addRoute({
+      path: '/',
+      method: HttpMethod.Post,
+      handler: this.create
+    });
+    this.addRoute({
+      path: '/:offerId',
+      method: HttpMethod.Patch,
+      handler: this.update,
+      middlewares: [new ValidateMongoObjectIdMiddleware('offerId')]
+    });
+    this.addRoute({
+      path: '/:offerId',
+      method: HttpMethod.Delete,
+      handler: this.delete,
+      middlewares: [new ValidateMongoObjectIdMiddleware('offerId')]
+    });
     this.addRoute({
       path: '/:offerId/favorite',
       method: HttpMethod.Put,
-      handler: this.addToFavorites
+      handler: this.addToFavorites,
+      middlewares: [new ValidateMongoObjectIdMiddleware('offerId')]
     });
     this.addRoute({
       path: '/:offerId/favorite',
       method: HttpMethod.Delete,
-      handler: this.removeFromFavorites
+      handler: this.removeFromFavorites,
+      middlewares: [new ValidateMongoObjectIdMiddleware('offerId')]
     });
     this.addRoute({
       path: '/:offerId/comments',
       method: HttpMethod.Get,
-      handler: this.getComments
+      handler: this.getComments,
+      middlewares: [new ValidateMongoObjectIdMiddleware('offerId')]
     });
   }
 
