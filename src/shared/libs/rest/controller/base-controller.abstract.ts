@@ -1,12 +1,11 @@
 import asyncHandler from 'express-async-handler';
 import { injectable } from 'inversify';
-import { Router } from 'express';
+import { Router, type Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import type { Response } from 'express';
 
-import type { Controller } from './controller.interface.js';
-import type { Logger } from '../../logger/index.js';
-import type { Route } from '../types/index.js';
+import { type Controller } from './controller.interface.js';
+import { type Logger } from '../../logger/index.js';
+import { type Route } from '../types/index.js';
 
 const DEFAULT_CONTENT_TYPE = 'application/json';
 
@@ -22,10 +21,16 @@ export abstract class BaseController implements Controller {
     return this._router;
   }
 
-  public addRoute(route: Route): void {
-    const wrappedHandler = asyncHandler(route.handler.bind(this));
-    this._router[route.method](route.path, wrappedHandler);
-    this.logger.info(`Route registered: ${route.method.toUpperCase()} ${route.path}`);
+  public addRoute({ handler, method, path, middlewares }: Route): void {
+    const wrappedRouteHandler = asyncHandler(handler.bind(this));
+    const wrappedMiddlewareHandlers = middlewares?.map(
+      (middleware) => asyncHandler(middleware.execute.bind(middleware))
+    );
+    const allHandlers = wrappedMiddlewareHandlers
+      ? [...wrappedMiddlewareHandlers, wrappedRouteHandler]
+      : wrappedRouteHandler;
+    this._router[method](path, allHandlers);
+    this.logger.info(`Route registered: ${method.toUpperCase()} ${path}`);
   }
 
   public send<T>(res: Response, statusCode: number, data: T): void {
