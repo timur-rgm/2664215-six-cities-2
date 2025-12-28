@@ -83,18 +83,6 @@ export class CreateOfferDto {
   })
   public isFavorite: boolean;
 
-  @IsNumber(
-    { maxDecimalPlaces: 1 },
-    { message: CreateOfferValidationMessage.rating.type }
-  )
-  @Min(0, {
-    message: CreateOfferValidationMessage.rating.minValue
-  })
-  @Max(5, {
-    message: CreateOfferValidationMessage.rating.maxValue
-  })
-  public rating: number;
-
   @IsEnum(HousingType, {
     message: CreateOfferValidationMessage.type.type
   })
@@ -106,7 +94,7 @@ export class CreateOfferDto {
   @Min(1, {
     message: CreateOfferValidationMessage.bedrooms.minValue
   })
-  @Min(8, {
+  @Max(8, {
     message: CreateOfferValidationMessage.bedrooms.maxValue
   })
   public bedrooms: number;
@@ -117,7 +105,7 @@ export class CreateOfferDto {
   @Min(1, {
     message: CreateOfferValidationMessage.maxAdults.minValue
   })
-  @Min(10, {
+  @Max(10, {
     message: CreateOfferValidationMessage.maxAdults.maxValue
   })
   public maxAdults: number;
@@ -128,7 +116,7 @@ export class CreateOfferDto {
   @Min(100, {
     message: CreateOfferValidationMessage.price.minValue
   })
-  @Min(100_000, {
+  @Max(100_000, {
     message: CreateOfferValidationMessage.price.maxValue
   })
   public price: number;

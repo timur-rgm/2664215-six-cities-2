@@ -22,7 +22,7 @@ export const CreateOfferValidationMessage = {
     type: 'isPremium must be a boolean',
   },
   isFavorite: {
-    type: 'isPremium must be a boolean',
+    type: 'isFavorite must be a boolean',
   },
   rating: {
     type: 'rating must be a number with at most 1 decimal place',
@@ -56,6 +56,6 @@ export const CreateOfferValidationMessage = {
     id: 'userId must be a valid id',
   },
   location: {
-    type: 'latitude and longitude must be a number',
+    type: 'latitude and longitude must be numbers',
   }
 } as const;
