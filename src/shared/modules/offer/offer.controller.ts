@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import type { Response } from 'express';
+import { type Response } from 'express';
 
 import {
   BaseController,
@@ -19,9 +19,9 @@ import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
 import { fillRdo, parseBooleanString } from '../../helpers/index.js';
 import { OfferRdo } from './rdo/index.js';
 import { StatusCodes } from 'http-status-codes';
-import type{ CommentService } from '../comment/index.js';
-import type { Logger } from '../../libs/logger/index.js';
-import type { OfferService } from './offer-service.interface.js';
+import { type CommentService } from '../comment/index.js';
+import { type Logger } from '../../libs/logger/index.js';
+import { type OfferService } from './offer-service.interface.js';
 
 @injectable()
 export class OfferController extends BaseController {
@@ -103,6 +103,7 @@ export class OfferController extends BaseController {
       parseBooleanString(isFavorite)
     );
     const responseData = fillRdo(OfferRdo, offers);
+
     this.ok(res, responseData);
   }
 
@@ -162,7 +163,6 @@ export class OfferController extends BaseController {
       const updatedOffer = await this.offerService.updateById(
         params.offerId, body
       );
-
       const offerRdo = fillRdo(OfferRdo, updatedOffer);
       this.ok(res, offerRdo);
     } catch (error) {
@@ -183,7 +183,6 @@ export class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
     const { params } = req;
-
     await this.offerService.deleteById(params.offerId);
     this.noContent(res);
   }
