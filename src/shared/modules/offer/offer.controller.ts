@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { type Response } from 'express';
+import type { Response } from 'express';
 
 import {
   BaseController,
@@ -7,6 +7,7 @@ import {
   HttpMethod,
   OfferAlreadyExistsError,
   OfferNotFoundError,
+  ValidateDtoMiddleware,
   ValidateMongoObjectIdMiddleware,
   type RequestWithBody,
   type RequestWithBodyAndParams,
@@ -19,9 +20,9 @@ import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
 import { fillRdo, parseBooleanString } from '../../helpers/index.js';
 import { OfferRdo } from './rdo/index.js';
 import { StatusCodes } from 'http-status-codes';
-import { type CommentService } from '../comment/index.js';
-import { type Logger } from '../../libs/logger/index.js';
-import { type OfferService } from './offer-service.interface.js';
+import type { CommentService } from '../comment/index.js';
+import type { Logger } from '../../libs/logger/index.js';
+import type { OfferService } from './offer-service.interface.js';
 
 @injectable()
 export class OfferController extends BaseController {
@@ -52,7 +53,8 @@ export class OfferController extends BaseController {
     this.addRoute({
       path: '/',
       method: HttpMethod.Post,
-      handler: this.create
+      handler: this.create,
+      middlewares: [new ValidateDtoMiddleware(CreateOfferDto)]
     });
     this.addRoute({
       path: '/:offerId',
