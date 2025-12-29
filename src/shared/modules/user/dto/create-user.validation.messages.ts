@@ -1,14 +1,14 @@
 export const CreateUserValidationMessage = {
   name: {
-    minLength: 'Minimum name length must be 1',
-    maxLength: 'Maximum name length must be 15',
+    type: 'name must be a string',
+    length: 'min name length is 1, max is 15',
   },
   email: {
     format: 'email must be a valid address',
   },
   password: {
-    minLength: 'Minimum password length must be 6',
-    maxLength: 'Maximum password length must be 12',
+    type: 'password must be a string',
+    length: 'min password length is 6, max is 12',
   },
   avatarPath: {
     type: 'avatarPath must be a string',

@@ -39,7 +39,8 @@ export class UserController extends BaseController {
     this.addRoute({
       path: '/login',
       method: HttpMethod.Post,
-      handler: this.login
+      handler: this.login,
+      middlewares: [new ValidateDtoMiddleware(LoginUserDto)]
     });
   }
 

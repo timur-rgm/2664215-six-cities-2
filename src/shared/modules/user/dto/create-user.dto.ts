@@ -1,20 +1,13 @@
-import {
-  IsEmail,
-  IsEnum,
-  IsString,
-  MaxLength,
-  MinLength
-} from 'class-validator';
-
+import { IsEmail, IsEnum, IsString, Length } from 'class-validator';
 import { CreateUserValidationMessage } from './create-user.validation.messages.js';
 import { UserRole } from '../../../types/index.js';
 
 export class CreateUserDto {
-  @MinLength(1, {
-    message: CreateUserValidationMessage.name.minLength
+  @IsString({
+    message: CreateUserValidationMessage.name.type
   })
-  @MaxLength(15, {
-    message: CreateUserValidationMessage.name.maxLength
+  @Length(1, 15, {
+    message: CreateUserValidationMessage.name.length
   })
   public name: string;
 
@@ -23,11 +16,11 @@ export class CreateUserDto {
   })
   public email: string;
 
-  @MinLength(6, {
-    message: CreateUserValidationMessage.password.minLength
+  @IsString({
+    message: CreateUserValidationMessage.password.type
   })
-  @MaxLength(12, {
-    message: CreateUserValidationMessage.password.maxLength
+  @Length(6, 12, {
+    message: CreateUserValidationMessage.password.length
   })
   public password: string;
 
