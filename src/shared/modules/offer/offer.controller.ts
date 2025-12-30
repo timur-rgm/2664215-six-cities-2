@@ -48,13 +48,17 @@ export class OfferController extends BaseController {
       path: '/:offerId',
       method: HttpMethod.Get,
       handler: this.show,
-      middlewares: [new ValidateMongoObjectIdMiddleware('offerId')]
+      middlewares: [
+        new ValidateMongoObjectIdMiddleware('offerId')
+      ]
     });
     this.addRoute({
       path: '/',
       method: HttpMethod.Post,
       handler: this.create,
-      middlewares: [new ValidateDtoMiddleware(CreateOfferDto)]
+      middlewares: [
+        new ValidateDtoMiddleware(CreateOfferDto)
+      ]
     });
     this.addRoute({
       path: '/:offerId',
@@ -69,25 +73,33 @@ export class OfferController extends BaseController {
       path: '/:offerId',
       method: HttpMethod.Delete,
       handler: this.delete,
-      middlewares: [new ValidateMongoObjectIdMiddleware('offerId')]
+      middlewares: [
+        new ValidateMongoObjectIdMiddleware('offerId')
+      ]
     });
     this.addRoute({
       path: '/:offerId/favorite',
       method: HttpMethod.Put,
       handler: this.addToFavorites,
-      middlewares: [new ValidateMongoObjectIdMiddleware('offerId')]
+      middlewares: [
+        new ValidateMongoObjectIdMiddleware('offerId')
+      ]
     });
     this.addRoute({
       path: '/:offerId/favorite',
       method: HttpMethod.Delete,
       handler: this.removeFromFavorites,
-      middlewares: [new ValidateMongoObjectIdMiddleware('offerId')]
+      middlewares: [
+        new ValidateMongoObjectIdMiddleware('offerId')
+      ]
     });
     this.addRoute({
       path: '/:offerId/comments',
       method: HttpMethod.Get,
       handler: this.getComments,
-      middlewares: [new ValidateMongoObjectIdMiddleware('offerId')]
+      middlewares: [
+        new ValidateMongoObjectIdMiddleware('offerId')
+      ]
     });
   }
 

@@ -10,12 +10,13 @@ import {
   HttpError,
   HttpMethod,
   OfferNotFoundError,
-  type RequestWithBody
+  ValidateDtoMiddleware,
+  type RequestWithBody,
 } from '../../libs/rest/index.js';
 import { fillRdo } from '../../helpers/index.js';
 import { StatusCodes } from 'http-status-codes';
-import { type Logger } from '../../libs/logger/index.js';
-import { type OfferService } from '../offer/index.js';
+import type { Logger } from '../../libs/logger/index.js';
+import type { OfferService } from '../offer/index.js';
 
 @injectable()
 export class CommentController extends BaseController {
@@ -34,7 +35,10 @@ export class CommentController extends BaseController {
     this.addRoute({
       path: '/',
       method: HttpMethod.Post,
-      handler: this.create
+      handler: this.create,
+      middlewares: [
+        new ValidateDtoMiddleware(CreateCommentDto)
+      ]
     });
   }
 
