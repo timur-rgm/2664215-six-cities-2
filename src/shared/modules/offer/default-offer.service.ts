@@ -117,6 +117,19 @@ export class DefaultOfferService implements OfferService {
     return updatedOffer;
   }
 
+  public async updateRating(
+    offerId: string,
+    rating: number
+  ): Promise<void> {
+    const updatedOffer = await this.offerModel
+      .findByIdAndUpdate(offerId, { rating }, { new: true })
+      .exec();
+
+    if (!updatedOffer) {
+      throw new OfferNotFoundError();
+    }
+  }
+
   public async setIsFavorite(
     offerId: string,
     isFavorite: boolean

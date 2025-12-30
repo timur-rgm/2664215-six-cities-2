@@ -3,9 +3,9 @@ import { types, type DocumentType } from '@typegoose/typegoose';
 
 import { Component } from '../../types/index.js';
 import { CreateCommentDto } from './dto/index.js';
-import { type CommentService } from './comment-service.interface.js';
-import { type CommentEntity } from './comment.entity.js';
-import { type OfferService } from '../offer/index.js';
+import type { CommentService } from './comment-service.interface.js';
+import type { CommentEntity } from './comment.entity.js';
+import type { OfferService } from '../offer/index.js';
 
 @injectable()
 export class DefaultCommentService implements CommentService {
@@ -24,15 +24,15 @@ export class DefaultCommentService implements CommentService {
     const { offerId } = comment;
 
     const [{ averageRating }] = await this.commentModel
-      .aggregate([
+      .aggregate<{averageRating: number }>([
         { $match: { offerId } },
         { $group: { _id: null, averageRating: { $avg: '$rating' } } },
       ])
       .exec();
 
-    await this.offerService.updateById(
+    await this.offerService.updateRating(
       String(offerId),
-      { rating: averageRating }
+      averageRating
     );
 
     return comment.populate('userId');

@@ -9,10 +9,11 @@ export interface OfferService {
     isPremium?: boolean,
     isFavorite?: boolean
   ): Promise<DocumentType<OfferEntity>[]>;
-  findById(offerId: string): Promise<DocumentType<OfferEntity> | null>;
+  findById(offerId: string): Promise<DocumentType<OfferEntity>>;
   findAllFavorites(): Promise<DocumentType<OfferEntity>[]>;
   createOffer(offerData: CreateOfferDto): Promise<DocumentType<OfferEntity>>;
-  updateById(offerId: string, offerData: UpdateOfferDto): Promise<DocumentType<OfferEntity> | null>;
+  updateById(offerId: string, offerData: UpdateOfferDto): Promise<DocumentType<OfferEntity>>;
+  updateRating(offerId: string, rating: number): Promise<void>;
   deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null>;
   setIsFavorite(offerId: string, isFavorite: boolean): Promise<DocumentType<OfferEntity>>;
 }

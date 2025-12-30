@@ -60,7 +60,10 @@ export class OfferController extends BaseController {
       path: '/:offerId',
       method: HttpMethod.Patch,
       handler: this.update,
-      middlewares: [new ValidateMongoObjectIdMiddleware('offerId')]
+      middlewares: [
+        new ValidateMongoObjectIdMiddleware('offerId'),
+        new ValidateDtoMiddleware(UpdateOfferDto)
+      ]
     });
     this.addRoute({
       path: '/:offerId',
