@@ -3,10 +3,10 @@ import type { Response } from 'express';
 
 import {
   BaseController,
+  DocumentExistsMiddleware,
   HttpError,
   HttpMethod,
   OfferAlreadyExistsError,
-  OfferNotFoundError,
   ValidateDtoMiddleware,
   ValidateMongoObjectIdMiddleware,
   type RequestWithBody,
@@ -49,7 +49,12 @@ export class OfferController extends BaseController {
       method: HttpMethod.Get,
       handler: this.show,
       middlewares: [
-        new ValidateMongoObjectIdMiddleware('offerId')
+        new ValidateMongoObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(
+          this.offerService,
+          'offers',
+          'offerId'
+        ),
       ]
     });
     this.addRoute({
@@ -66,7 +71,12 @@ export class OfferController extends BaseController {
       handler: this.update,
       middlewares: [
         new ValidateMongoObjectIdMiddleware('offerId'),
-        new ValidateDtoMiddleware(UpdateOfferDto)
+        new ValidateDtoMiddleware(UpdateOfferDto),
+        new DocumentExistsMiddleware(
+          this.offerService,
+          'offers',
+          'offerId'
+        ),
       ]
     });
     this.addRoute({
@@ -74,7 +84,12 @@ export class OfferController extends BaseController {
       method: HttpMethod.Delete,
       handler: this.delete,
       middlewares: [
-        new ValidateMongoObjectIdMiddleware('offerId')
+        new ValidateMongoObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(
+          this.offerService,
+          'offers',
+          'offerId'
+        ),
       ]
     });
     this.addRoute({
@@ -82,7 +97,12 @@ export class OfferController extends BaseController {
       method: HttpMethod.Put,
       handler: this.addToFavorites,
       middlewares: [
-        new ValidateMongoObjectIdMiddleware('offerId')
+        new ValidateMongoObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(
+          this.offerService,
+          'offers',
+          'offerId'
+        ),
       ]
     });
     this.addRoute({
@@ -90,7 +110,12 @@ export class OfferController extends BaseController {
       method: HttpMethod.Delete,
       handler: this.removeFromFavorites,
       middlewares: [
-        new ValidateMongoObjectIdMiddleware('offerId')
+        new ValidateMongoObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(
+          this.offerService,
+          'offers',
+          'offerId'
+        ),
       ]
     });
     this.addRoute({
@@ -98,7 +123,12 @@ export class OfferController extends BaseController {
       method: HttpMethod.Get,
       handler: this.getComments,
       middlewares: [
-        new ValidateMongoObjectIdMiddleware('offerId')
+        new ValidateMongoObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(
+          this.offerService,
+          'offers',
+          'offerId'
+        ),
       ]
     });
   }
@@ -113,14 +143,12 @@ export class OfferController extends BaseController {
   ): Promise<void> {
     const { query } = req;
     const { city, isPremium, isFavorite } = query;
-
     const offers = await this.offerService.findAll(
       city,
       parseBooleanString(isPremium),
       parseBooleanString(isFavorite)
     );
     const responseData = fillRdo(OfferRdo, offers);
-
     this.ok(res, responseData);
   }
 
@@ -129,22 +157,9 @@ export class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
     const { params } = req;
-
-    try {
-      const offer = await this.offerService.findById(params.offerId);
-      const responseData = fillRdo(OfferRdo, offer);
-      this.ok(res, responseData);
-    } catch (error) {
-      if (error instanceof OfferNotFoundError) {
-        throw new HttpError(
-          StatusCodes.NOT_FOUND,
-          error.message,
-          'OfferController'
-        );
-      }
-
-      throw error;
-    }
+    const offer = await this.offerService.findById(params.offerId);
+    const responseData = fillRdo(OfferRdo, offer);
+    this.ok(res, responseData);
   }
 
   public async create(
@@ -175,24 +190,11 @@ export class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
     const { params, body } = req;
-
-    try {
-      const updatedOffer = await this.offerService.updateById(
-        params.offerId, body
-      );
-      const offerRdo = fillRdo(OfferRdo, updatedOffer);
-      this.ok(res, offerRdo);
-    } catch (error) {
-      if (error instanceof OfferNotFoundError) {
-        throw new HttpError(
-          StatusCodes.NOT_FOUND,
-          error.message,
-          'OfferController'
-        );
-      }
-
-      throw error;
-    }
+    const updatedOffer = await this.offerService.updateById(
+      params.offerId, body
+    );
+    const offerRdo = fillRdo(OfferRdo, updatedOffer);
+    this.ok(res, offerRdo);
   }
 
   public async delete(
@@ -209,25 +211,12 @@ export class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
     const { params } = req;
-
-    try {
-      const updatedOffer = await this.offerService.setIsFavorite(
-        params.offerId,
-        true
-      );
-      const offerRdo = fillRdo(OfferRdo, updatedOffer);
-      this.ok(res, offerRdo);
-    } catch (error) {
-      if (error instanceof OfferNotFoundError) {
-        throw new HttpError(
-          StatusCodes.NOT_FOUND,
-          error.message,
-          'OfferController'
-        );
-      }
-
-      throw error;
-    }
+    const updatedOffer = await this.offerService.setIsFavorite(
+      params.offerId,
+      true
+    );
+    const offerRdo = fillRdo(OfferRdo, updatedOffer);
+    this.ok(res, offerRdo);
   }
 
   public async removeFromFavorites(
@@ -235,25 +224,12 @@ export class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
     const { params } = req;
-
-    try {
-      const updatedOffer = await this.offerService.setIsFavorite(
-        params.offerId,
-        false
-      );
-      const offerRdo = fillRdo(OfferRdo, updatedOffer);
-      this.ok(res, offerRdo);
-    } catch (error) {
-      if (error instanceof OfferNotFoundError) {
-        throw new HttpError(
-          StatusCodes.NOT_FOUND,
-          error.message,
-          'OfferController'
-        );
-      }
-
-      throw error;
-    }
+    const updatedOffer = await this.offerService.setIsFavorite(
+      params.offerId,
+      false
+    );
+    const offerRdo = fillRdo(OfferRdo, updatedOffer);
+    this.ok(res, offerRdo);
   }
 
   public async getComments(
@@ -262,22 +238,8 @@ export class OfferController extends BaseController {
   ): Promise<void> {
     const { params } = req;
     const { offerId } = params;
-
-    try {
-      await this.offerService.findById(offerId);
-      const comments = await this.commentService.findCommentByOfferId(offerId);
-      const commentsRdo = fillRdo(CommentRdo, comments);
-      this.ok(res, commentsRdo);
-    } catch(error) {
-      if (error instanceof OfferNotFoundError) {
-        throw new HttpError(
-          StatusCodes.NOT_FOUND,
-          error.message,
-          'OfferController'
-        );
-      }
-
-      throw error;
-    }
+    const comments = await this.commentService.findCommentByOfferId(offerId);
+    const commentsRdo = fillRdo(CommentRdo, comments);
+    this.ok(res, commentsRdo);
   }
 }

@@ -9,7 +9,6 @@ import {
   BaseController,
   HttpError,
   HttpMethod,
-  OfferNotFoundError,
   ValidateDtoMiddleware,
   type RequestWithBody,
 } from '../../libs/rest/index.js';
@@ -37,7 +36,7 @@ export class CommentController extends BaseController {
       method: HttpMethod.Post,
       handler: this.create,
       middlewares: [
-        new ValidateDtoMiddleware(CreateCommentDto)
+        new ValidateDtoMiddleware(CreateCommentDto),
       ]
     });
   }
@@ -48,21 +47,18 @@ export class CommentController extends BaseController {
   ): Promise<void> {
     const { body } = req;
 
-    try {
-      await this.offerService.findById(body.offerId);
-      const comment = await this.commentService.createComment(body);
-      const commentRdo = fillRdo(CommentRdo, comment);
-      this.created(res, commentRdo);
-    } catch(error) {
-      if (error instanceof OfferNotFoundError) {
-        throw new HttpError(
-          StatusCodes.NOT_FOUND,
-          error.message,
-          'CommentController'
-        );
-      }
+    const offerExists = await this.offerService.exist(body.offerId);
 
-      throw error;
+    if (!offerExists) {
+      throw new HttpError(
+        StatusCodes.NOT_FOUND,
+        `offers with id ${body.offerId} not found.`,
+        'CommentController'
+      );
     }
+
+    const comment = await this.commentService.createComment(body);
+    const commentRdo = fillRdo(CommentRdo, comment);
+    this.created(res, commentRdo);
   }
 }
