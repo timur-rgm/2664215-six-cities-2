@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
-import { types, type DocumentType } from '@typegoose/typegoose';
+import { type DocumentType, types } from '@typegoose/typegoose';
 
-import { Component, City } from '../../types/index.js';
+import { City, Component } from '../../types/index.js';
 import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
 import { OfferAlreadyExistsError, OfferNotFoundError } from '../../libs/rest/index.js';
 import type { Logger } from '../../libs/logger/index.js';
@@ -144,5 +144,9 @@ export class DefaultOfferService implements OfferService {
     }
 
     return updatedOffer;
+  }
+
+  public async exist(offerId: string): Promise<boolean> {
+    return await this.offerModel.exists({ _id: offerId }) !== null;
   }
 }

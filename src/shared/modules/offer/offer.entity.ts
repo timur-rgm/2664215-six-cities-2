@@ -1,7 +1,13 @@
-import { prop, modelOptions, defaultClasses, getModelForClass, Ref } from '@typegoose/typegoose';
+import {
+  defaultClasses,
+  getModelForClass,
+  modelOptions,
+  prop,
+  type Ref
+} from '@typegoose/typegoose';
 
-import { UserEntity } from '../user/index.js';
 import { Amenity, City, HousingType } from '../../types/index.js';
+import { UserEntity } from '../user/index.js';
 
 class Coordinates {
   @prop({ required: true })

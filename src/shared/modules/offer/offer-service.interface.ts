@@ -1,9 +1,10 @@
 import type { DocumentType } from '@typegoose/typegoose';
-import { OfferEntity } from './offer.entity.js';
-import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
-import { City } from '../../types/index.js';
 
-export interface OfferService {
+import { City, type DocumentExists } from '../../types/index.js';
+import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
+import type { OfferEntity } from './offer.entity.js';
+
+export interface OfferService extends DocumentExists {
   findAll(
     city?: City,
     isPremium?: boolean,
