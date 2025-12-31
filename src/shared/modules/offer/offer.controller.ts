@@ -279,6 +279,5 @@ export class OfferController extends BaseController {
 
       throw error;
     }
-
   }
 }
