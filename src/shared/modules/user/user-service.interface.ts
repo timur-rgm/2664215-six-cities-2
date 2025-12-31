@@ -4,6 +4,7 @@ import type { UserEntity } from './user.entity.js';
 
 export interface UserService {
   create(dto: CreateUserDto, salt: string): Promise<DocumentType<UserEntity>>;
+  existsByEmail(email: string): Promise<boolean>;
   findByEmail(email: string): Promise<DocumentType<UserEntity> | null>;
   findByEmailOrCreate(dto: CreateUserDto, salt: string): Promise<DocumentType<UserEntity>>;
   login(dto: LoginUserDto): Promise<void>;

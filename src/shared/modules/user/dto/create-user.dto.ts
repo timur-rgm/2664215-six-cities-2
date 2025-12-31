@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsString, Length } from 'class-validator';
+import { IsEmail, IsEnum, IsOptional, IsString, Length } from 'class-validator';
 import { CreateUserValidationMessage } from './create-user.validation.messages.js';
 import { UserRole } from '../../../types/index.js';
 
@@ -24,6 +24,7 @@ export class CreateUserDto {
   })
   public password: string;
 
+  @IsOptional()
   @IsString({
     message: CreateUserValidationMessage.avatarPath.type
   })

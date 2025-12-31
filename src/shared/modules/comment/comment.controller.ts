@@ -47,12 +47,12 @@ export class CommentController extends BaseController {
   ): Promise<void> {
     const { body } = req;
 
-    const offerExists = await this.offerService.exist(body.offerId);
+    const offerExists = await this.offerService.exists(body.offerId);
 
     if (!offerExists) {
       throw new HttpError(
         StatusCodes.NOT_FOUND,
-        `offers with id ${body.offerId} not found.`,
+        `Offer with id ${body.offerId} not found.`,
         'CommentController'
       );
     }

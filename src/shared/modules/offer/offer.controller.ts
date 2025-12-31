@@ -6,7 +6,6 @@ import {
   DocumentExistsMiddleware,
   HttpError,
   HttpMethod,
-  OfferAlreadyExistsError,
   ValidateDtoMiddleware,
   ValidateMongoObjectIdMiddleware,
   type RequestWithBody,
@@ -52,7 +51,7 @@ export class OfferController extends BaseController {
         new ValidateMongoObjectIdMiddleware('offerId'),
         new DocumentExistsMiddleware(
           this.offerService,
-          'offers',
+          'Offer',
           'offerId'
         ),
       ]
@@ -74,7 +73,7 @@ export class OfferController extends BaseController {
         new ValidateDtoMiddleware(UpdateOfferDto),
         new DocumentExistsMiddleware(
           this.offerService,
-          'offers',
+          'Offer',
           'offerId'
         ),
       ]
@@ -87,7 +86,7 @@ export class OfferController extends BaseController {
         new ValidateMongoObjectIdMiddleware('offerId'),
         new DocumentExistsMiddleware(
           this.offerService,
-          'offers',
+          'Offer',
           'offerId'
         ),
       ]
@@ -100,7 +99,7 @@ export class OfferController extends BaseController {
         new ValidateMongoObjectIdMiddleware('offerId'),
         new DocumentExistsMiddleware(
           this.offerService,
-          'offers',
+          'Offer',
           'offerId'
         ),
       ]
@@ -113,7 +112,7 @@ export class OfferController extends BaseController {
         new ValidateMongoObjectIdMiddleware('offerId'),
         new DocumentExistsMiddleware(
           this.offerService,
-          'offers',
+          'Offer',
           'offerId'
         ),
       ]
@@ -126,7 +125,7 @@ export class OfferController extends BaseController {
         new ValidateMongoObjectIdMiddleware('offerId'),
         new DocumentExistsMiddleware(
           this.offerService,
-          'offers',
+          'Offer',
           'offerId'
         ),
       ]
@@ -143,12 +142,14 @@ export class OfferController extends BaseController {
   ): Promise<void> {
     const { query } = req;
     const { city, isPremium, isFavorite } = query;
+
     const offers = await this.offerService.findAll(
       city,
       parseBooleanString(isPremium),
       parseBooleanString(isFavorite)
     );
     const responseData = fillRdo(OfferRdo, offers);
+
     this.ok(res, responseData);
   }
 
@@ -167,22 +168,21 @@ export class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
     const { body } = req;
+    const title = body.title;
 
-    try {
-      const newOffer = await this.offerService.createOffer(body);
-      const offerRdo = fillRdo(OfferRdo, newOffer);
-      this.created(res, offerRdo);
-    } catch (error) {
-      if (error instanceof OfferAlreadyExistsError) {
-        throw new HttpError(
-          StatusCodes.UNPROCESSABLE_ENTITY,
-          error.message,
-          'OfferController'
-        );
-      }
+    const offerExists = await this.offerService.existsByTitle(title);
 
-      throw error;
+    if (offerExists) {
+      throw new HttpError(
+        StatusCodes.UNPROCESSABLE_ENTITY,
+        `Offer with name ${title} already exists.`,
+        'OfferController'
+      );
     }
+
+    const newOffer = await this.offerService.createOffer(body);
+    const offerRdo = fillRdo(OfferRdo, newOffer);
+    this.created(res, offerRdo);
   }
 
   public async update(

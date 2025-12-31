@@ -1,3 +1,3 @@
 export interface DocumentExists {
-  exist(documentId: string): Promise<boolean>;
+  exists(documentId: string): Promise<boolean>;
 }

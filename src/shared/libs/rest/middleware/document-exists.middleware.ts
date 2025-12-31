@@ -16,7 +16,7 @@ export class DocumentExistsMiddleware implements Middleware {
     const { params } = req;
 
     const documentId = params[this.paramKey];
-    const documentsExists = await this.service.exist(documentId);
+    const documentsExists = await this.service.exists(documentId);
 
     if (!documentsExists) {
       throw new HttpError(
