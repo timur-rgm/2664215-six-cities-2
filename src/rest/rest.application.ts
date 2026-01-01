@@ -3,10 +3,10 @@ import { inject, injectable } from 'inversify';
 
 import { Component } from '../shared/types/index.js';
 import { getMongoURI } from '../shared/helpers/index.js';
-import { type Config, type RestSchema } from '../shared/libs/config/index.js';
-import { type Controller, type ExceptionFilter } from '../shared/libs/rest/index.js';
-import { type DatabaseClient } from '../shared/libs/database-client/index.js';
-import { type Logger } from '../shared/libs/logger/index.js';
+import type { Config, RestSchema } from '../shared/libs/config/index.js';
+import type { Controller, ExceptionFilter } from '../shared/libs/rest/index.js';
+import type { DatabaseClient } from '../shared/libs/database-client/index.js';
+import type { Logger } from '../shared/libs/logger/index.js';
 
 @injectable()
 export class RestApplication {
@@ -56,6 +56,10 @@ export class RestApplication {
 
   private initMiddleware() {
     this.server.use(express.json());
+    this.server.use(
+      '/upload',
+      express.static(this.config.get('UPLOAD_DIRECTORY'))
+    );
   }
 
   private initControllers() {
