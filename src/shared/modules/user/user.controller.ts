@@ -1,12 +1,14 @@
 import { inject, injectable } from 'inversify';
 import { StatusCodes } from 'http-status-codes';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 
 import {
   BaseController,
   HttpError,
   HttpMethod,
   ValidateDtoMiddleware,
+  ValidateMongoObjectIdMiddleware,
+  UploadFileMiddleware,
   type RequestWithBody,
 } from '../../libs/rest/index.js';
 import { Component } from '../../types/index.js';
@@ -41,6 +43,18 @@ export class UserController extends BaseController {
       handler: this.login,
       middlewares: [
         new ValidateDtoMiddleware(LoginUserDto)
+      ]
+    });
+    this.addRoute({
+      path: '/:userId/avatar',
+      method: HttpMethod.Post,
+      handler: this.uploadAvatar,
+      middlewares: [
+        new ValidateMongoObjectIdMiddleware('userId'),
+        new UploadFileMiddleware(
+          this.config.get('UPLOAD_DIRECTORY'),
+          'avatar'
+        )
       ]
     });
   }
@@ -84,5 +98,14 @@ export class UserController extends BaseController {
     }
 
     await this.userService.login(req.body);
+  }
+
+  public async uploadAvatar(
+    req: Request,
+    res: Response
+  ): Promise<void> {
+    this.created(res, {
+      filepath: req.file?.path
+    });
   }
 }
