@@ -20,3 +20,14 @@ export const createErrorObject = (message: string) => ({
   error: message
 });
 
+export const parseBooleanString = (value?: string): boolean | undefined => {
+  switch (value) {
+    case 'true':
+      return true;
+    case 'false':
+      return false;
+    default:
+      return undefined;
+  }
+};
+

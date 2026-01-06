@@ -1,4 +1,5 @@
 import type { Request } from 'express';
+import { ParamsDictionary } from 'express-serve-static-core';
 
 export type TypedRequest<
   TBody = unknown,
@@ -10,7 +11,10 @@ export type RequestWithBody<TBody> =
   TypedRequest<TBody>;
 
 export type RequestWithParams<TParams> =
-  TypedRequest<undefined, TParams>;
+  TypedRequest<undefined, TParams | ParamsDictionary>;
+
+export type RequestWithBodyAndParams<TBody, TParams> =
+  TypedRequest<TBody, TParams | ParamsDictionary>;
 
 export type RequestWithQuery<TQuery> =
   TypedRequest<undefined, Record<string, unknown>, TQuery>;

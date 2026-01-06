@@ -1,25 +1,38 @@
 import express from 'express';
-import type { Express } from 'express';
 import { inject, injectable } from 'inversify';
 
 import { Component } from '../shared/types/index.js';
-import type { Config, RestSchema } from '../shared/libs/config/index.js';
-import type { Controller, ExceptionFilter } from '../shared/libs/rest/index.js';
-import type { DatabaseClient } from '../shared/libs/database-client/index.js';
-import type { Logger } from '../shared/libs/logger/index.js';
 import { getMongoURI } from '../shared/helpers/index.js';
+import { type Config, type RestSchema } from '../shared/libs/config/index.js';
+import { type Controller, type ExceptionFilter } from '../shared/libs/rest/index.js';
+import { type DatabaseClient } from '../shared/libs/database-client/index.js';
+import { type Logger } from '../shared/libs/logger/index.js';
 
 @injectable()
 export class RestApplication {
-  private readonly server: Express;
+  private readonly server: express.Express;
 
   constructor(
-    @inject(Component.ExceptionFilter) private readonly appExceptionFilter: ExceptionFilter,
-    @inject(Component.Config) private readonly config: Config<RestSchema>,
-    @inject(Component.DatabaseClient) private readonly databaseClient: DatabaseClient,
-    @inject(Component.OfferController) private readonly offersController: Controller,
-    @inject(Component.Logger) private readonly logger: Logger,
-    @inject(Component.UserController) private readonly userController: Controller,
+    @inject(Component.ExceptionFilter)
+    private readonly appExceptionFilter: ExceptionFilter,
+
+    @inject(Component.Config)
+    private readonly config: Config<RestSchema>,
+
+    @inject(Component.CommentController)
+    private readonly commentController: Controller,
+
+    @inject(Component.DatabaseClient)
+    private readonly databaseClient: DatabaseClient,
+
+    @inject(Component.OfferController)
+    private readonly offersController: Controller,
+
+    @inject(Component.Logger)
+    private readonly logger: Logger,
+
+    @inject(Component.UserController)
+    private readonly userController: Controller,
   ) {
     this.server = express();
   }
@@ -46,6 +59,7 @@ export class RestApplication {
   }
 
   private initControllers() {
+    this.server.use('/comments', this.commentController.router);
     this.server.use('/offers', this.offersController.router);
     this.server.use('/users', this.userController.router);
   }

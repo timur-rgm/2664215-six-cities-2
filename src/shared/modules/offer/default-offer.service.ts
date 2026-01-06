@@ -1,6 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { types } from '@typegoose/typegoose';
-import type { DocumentType } from '@typegoose/typegoose';
+import { types, type DocumentType } from '@typegoose/typegoose';
 
 import { Component, City } from '../../types/index.js';
 import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
@@ -12,32 +11,27 @@ import type { OfferService } from './offer-service.interface.js';
 @injectable()
 export class DefaultOfferService implements OfferService {
   constructor(
-    @inject(Component.Logger) private readonly logger: Logger,
-    @inject(Component.OfferModel) private readonly offerModel: types.ModelType<OfferEntity>,
+    @inject(Component.Logger)
+    private readonly logger: Logger,
+
+    @inject(Component.OfferModel)
+    private readonly offerModel: types.ModelType<OfferEntity>,
   ) {}
 
-  public async createOffer(offerData: CreateOfferDto): Promise<DocumentType<OfferEntity>> {
-    const existingOffer = await this.offerModel.findOne({ title: offerData.title });
-
-    if (existingOffer) {
-      throw new OfferAlreadyExistsError(offerData.title);
-    }
-
-    const result = await this.offerModel.create(offerData);
-    this.logger.info(`New offer created: ${offerData.title}`);
-
-    return result;
-  }
-
-  public deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
-    return this.offerModel
-      .findByIdAndDelete(offerId)
-      .exec();
-  }
-
-  public findAll(): Promise<DocumentType<OfferEntity>[]> {
+  public findAll(
+    city?: City,
+    isPremium?: boolean,
+    isFavorite?: boolean,
+  ): Promise<DocumentType<OfferEntity>[]> {
     return this.offerModel
       .aggregate([
+        {
+          $match: {
+            ...(city && { city }),
+            ...(isPremium !== undefined && { isPremium }),
+            ...(isFavorite !== undefined && { isFavorite }),
+          }
+        },
         {
           $lookup: {
             from: 'comments',
@@ -61,17 +55,10 @@ export class DefaultOfferService implements OfferService {
           $unwind: '$userId'
         },
         { $addFields:
-            { id: { $toString: '$_id'}, commentCount: { $size: '$comments'} }
+          { id: { $toString: '$_id'}, commentCount: { $size: '$comments'} }
         },
         { $unset: 'comments' },
       ])
-      .exec();
-  }
-
-  public findAllFavorites(): Promise<DocumentType<OfferEntity>[]> {
-    return this.offerModel
-      .find({ isFavorite: true })
-      .populate(['userId'])
       .exec();
   }
 
@@ -88,17 +75,74 @@ export class DefaultOfferService implements OfferService {
     return offer;
   }
 
-  public findPremiumByCity(city: City): Promise<DocumentType<OfferEntity>[]> {
+  public async createOffer(offerData: CreateOfferDto): Promise<DocumentType<OfferEntity>> {
+    const existingOffer = await this.offerModel.findOne({ title: offerData.title });
+
+    if (existingOffer) {
+      throw new OfferAlreadyExistsError(offerData.title);
+    }
+
+    const result = await this.offerModel.create(offerData);
+    this.logger.info(`New offer created: ${offerData.title}`);
+
+    return result;
+  }
+
+  public deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
     return this.offerModel
-      .find({ city, isPremium: true })
+      .findByIdAndDelete(offerId)
+      .exec();
+  }
+
+  public findAllFavorites(): Promise<DocumentType<OfferEntity>[]> {
+    return this.offerModel
+      .find({ isFavorite: true })
       .populate(['userId'])
       .exec();
   }
 
-  public async updateById(offerId: string, offerData: UpdateOfferDto): Promise<DocumentType<OfferEntity> | null> {
-    return this.offerModel
+  public async updateById(
+    offerId: string,
+    offerData: UpdateOfferDto
+  ): Promise<DocumentType<OfferEntity>> {
+    const updatedOffer = await this.offerModel
       .findByIdAndUpdate(offerId, offerData, { new: true })
       .populate(['userId'])
       .exec();
+
+    if (!updatedOffer) {
+      throw new OfferNotFoundError();
+    }
+
+    return updatedOffer;
+  }
+
+  public async updateRating(
+    offerId: string,
+    rating: number
+  ): Promise<void> {
+    const updatedOffer = await this.offerModel
+      .findByIdAndUpdate(offerId, { rating }, { new: true })
+      .exec();
+
+    if (!updatedOffer) {
+      throw new OfferNotFoundError();
+    }
+  }
+
+  public async setIsFavorite(
+    offerId: string,
+    isFavorite: boolean
+  ): Promise<DocumentType<OfferEntity>> {
+    const updatedOffer = await this.offerModel
+      .findByIdAndUpdate(offerId, { isFavorite }, { new: true })
+      .populate(['userId'])
+      .exec();
+
+    if (!updatedOffer) {
+      throw new OfferNotFoundError();
+    }
+
+    return updatedOffer;
   }
 }

@@ -4,11 +4,16 @@ import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
 import { City } from '../../types/index.js';
 
 export interface OfferService {
-  createOffer(offerData: CreateOfferDto): Promise<DocumentType<OfferEntity>>;
-  findAll(): Promise<DocumentType<OfferEntity>[]>;
-  findById(offerId: string): Promise<DocumentType<OfferEntity> | null>;
+  findAll(
+    city?: City,
+    isPremium?: boolean,
+    isFavorite?: boolean
+  ): Promise<DocumentType<OfferEntity>[]>;
+  findById(offerId: string): Promise<DocumentType<OfferEntity>>;
   findAllFavorites(): Promise<DocumentType<OfferEntity>[]>;
-  findPremiumByCity(city: City): Promise<DocumentType<OfferEntity>[]>;
-  updateById(offerId: string, offerData: UpdateOfferDto): Promise<DocumentType<OfferEntity> | null>;
+  createOffer(offerData: CreateOfferDto): Promise<DocumentType<OfferEntity>>;
+  updateById(offerId: string, offerData: UpdateOfferDto): Promise<DocumentType<OfferEntity>>;
+  updateRating(offerId: string, rating: number): Promise<void>;
   deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null>;
+  setIsFavorite(offerId: string, isFavorite: boolean): Promise<DocumentType<OfferEntity>>;
 }
