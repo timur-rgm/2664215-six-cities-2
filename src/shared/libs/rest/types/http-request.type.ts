@@ -1,5 +1,5 @@
 import type { Request } from 'express';
-import { ParamsDictionary } from 'express-serve-static-core';
+import type { ParamsDictionary } from 'express-serve-static-core';
 
 export type TypedRequest<
   TBody = unknown,
