@@ -1,9 +1,8 @@
 import { inject, injectable } from 'inversify';
 import { types, type DocumentType } from '@typegoose/typegoose';
 
-import { Component, City } from '../../types/index.js';
+import { City, Component } from '../../types/index.js';
 import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
-import { OfferAlreadyExistsError, OfferNotFoundError } from '../../libs/rest/index.js';
 import type { Logger } from '../../libs/logger/index.js';
 import type { OfferEntity } from './offer.entity.js';
 import type { OfferService } from './offer-service.interface.js';
@@ -17,6 +16,20 @@ export class DefaultOfferService implements OfferService {
     @inject(Component.OfferModel)
     private readonly offerModel: types.ModelType<OfferEntity>,
   ) {}
+
+  public async createOffer(offerData: CreateOfferDto): Promise<DocumentType<OfferEntity>> {
+    const result = await this.offerModel.create(offerData);
+    this.logger.info(`New offer created: ${offerData.title}`);
+    return result;
+  }
+
+  public async exists(offerId: string): Promise<boolean> {
+    return await this.offerModel.exists({ _id: offerId }) !== null;
+  }
+
+  public async existsByTitle(title: string): Promise<boolean> {
+    return await this.offerModel.exists({ title }) !== null;
+  }
 
   public findAll(
     city?: City,
@@ -62,30 +75,11 @@ export class DefaultOfferService implements OfferService {
       .exec();
   }
 
-  public async findById(offerId: string): Promise<DocumentType<OfferEntity>> {
-    const offer = await this.offerModel
+  public async findById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
+    return await this.offerModel
       .findById(offerId)
       .populate(['userId'])
       .exec();
-
-    if (!offer) {
-      throw new OfferNotFoundError();
-    }
-
-    return offer;
-  }
-
-  public async createOffer(offerData: CreateOfferDto): Promise<DocumentType<OfferEntity>> {
-    const existingOffer = await this.offerModel.findOne({ title: offerData.title });
-
-    if (existingOffer) {
-      throw new OfferAlreadyExistsError(offerData.title);
-    }
-
-    const result = await this.offerModel.create(offerData);
-    this.logger.info(`New offer created: ${offerData.title}`);
-
-    return result;
   }
 
   public deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
@@ -101,48 +95,32 @@ export class DefaultOfferService implements OfferService {
       .exec();
   }
 
+  public async setIsFavorite(
+    offerId: string,
+    isFavorite: boolean
+  ): Promise<DocumentType<OfferEntity> | null> {
+    return await this.offerModel
+      .findByIdAndUpdate(offerId, {isFavorite}, {new: true})
+      .populate(['userId'])
+      .exec();
+  }
+
   public async updateById(
     offerId: string,
     offerData: UpdateOfferDto
-  ): Promise<DocumentType<OfferEntity>> {
-    const updatedOffer = await this.offerModel
-      .findByIdAndUpdate(offerId, offerData, { new: true })
+  ): Promise<DocumentType<OfferEntity> | null> {
+    return await this.offerModel
+      .findByIdAndUpdate(offerId, offerData, {new: true})
       .populate(['userId'])
       .exec();
-
-    if (!updatedOffer) {
-      throw new OfferNotFoundError();
-    }
-
-    return updatedOffer;
   }
 
   public async updateRating(
     offerId: string,
     rating: number
   ): Promise<void> {
-    const updatedOffer = await this.offerModel
+    await this.offerModel
       .findByIdAndUpdate(offerId, { rating }, { new: true })
       .exec();
-
-    if (!updatedOffer) {
-      throw new OfferNotFoundError();
-    }
-  }
-
-  public async setIsFavorite(
-    offerId: string,
-    isFavorite: boolean
-  ): Promise<DocumentType<OfferEntity>> {
-    const updatedOffer = await this.offerModel
-      .findByIdAndUpdate(offerId, { isFavorite }, { new: true })
-      .populate(['userId'])
-      .exec();
-
-    if (!updatedOffer) {
-      throw new OfferNotFoundError();
-    }
-
-    return updatedOffer;
   }
 }

@@ -1,13 +1,9 @@
 import { inject, injectable } from 'inversify';
-import { types } from '@typegoose/typegoose';
-import type { DocumentType } from '@typegoose/typegoose';
+import { types, type DocumentType } from '@typegoose/typegoose';
 
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from './dto/index.js';
 import { Component } from '../../types/index.js';
-import {
-  NotImplementedError,
-  UserAlreadyExistsError,
-  UserNotFoundError } from '../../libs/rest/index.js';
+import { NotImplementedError } from '../../libs/rest/index.js';
 import { UserEntity } from './user.entity.js';
 import type { Logger } from '../../libs/logger/index.js';
 import type { UserService } from './user-service.interface.js';
@@ -23,18 +19,15 @@ export class DefaultUserService implements UserService {
     dto: CreateUserDto,
     salt: string
   ): Promise<DocumentType<UserEntity>> {
-    const existingUser = await this.findByEmail(dto.email);
-
-    if (existingUser) {
-      throw new UserAlreadyExistsError(dto.email);
-    }
-
     const user = new UserEntity(dto);
     user.setPassword(dto.password, salt);
-
     const result = await this.userModel.create(user);
     this.logger.info(`New user created: ${user.email}`);
     return result;
+  }
+
+  public async existsByEmail(email: string): Promise<boolean> {
+    return await this.userModel.exists({ email }) !== null;
   }
 
   public async findByEmail(email: string): Promise<DocumentType<UserEntity> | null> {
@@ -54,13 +47,7 @@ export class DefaultUserService implements UserService {
     return this.create(userData, salt);
   }
 
-  public async login(dto: LoginUserDto) {
-    const existingUser = await this.findByEmail(dto.email);
-
-    if (!existingUser) {
-      throw new UserNotFoundError(dto.email);
-    }
-
+  public async login(_dto: LoginUserDto): Promise<void> {
     throw new NotImplementedError();
   }
 

@@ -1,15 +1,14 @@
 import { inject, injectable } from 'inversify';
 import { StatusCodes } from 'http-status-codes';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 
 import {
   BaseController,
   HttpError,
   HttpMethod,
-  NotImplementedError,
-  UserAlreadyExistsError,
-  UserNotFoundError,
   ValidateDtoMiddleware,
+  ValidateMongoObjectIdMiddleware,
+  UploadFileMiddleware,
   type RequestWithBody,
 } from '../../libs/rest/index.js';
 import { Component } from '../../types/index.js';
@@ -46,53 +45,67 @@ export class UserController extends BaseController {
         new ValidateDtoMiddleware(LoginUserDto)
       ]
     });
+    this.addRoute({
+      path: '/:userId/avatar',
+      method: HttpMethod.Post,
+      handler: this.uploadAvatar,
+      middlewares: [
+        new ValidateMongoObjectIdMiddleware('userId'),
+        new UploadFileMiddleware(
+          this.config.get('UPLOAD_DIRECTORY'),
+          'avatar'
+        )
+      ]
+    });
   }
 
   public async create(
     req: RequestWithBody<CreateUserDto>,
     res: Response
   ): Promise<void> {
-    try {
-      const newUser = await this.userService.create(req.body, this.config.get('SALT'));
-      const userRdo = fillRdo(UserRdo, newUser);
-      this.created(res, userRdo);
-    } catch (error) {
-      if (error instanceof UserAlreadyExistsError) {
-        throw new HttpError(
-          StatusCodes.UNPROCESSABLE_ENTITY,
-          error.message,
-          'UserController'
-        );
-      }
+    const email = req.body.email;
+    const userExists = await this.userService.existsByEmail(email);
 
-      throw error;
+    if (userExists) {
+      throw new HttpError(
+        StatusCodes.UNPROCESSABLE_ENTITY,
+        `User with email ${email} already exists.`,
+        'UserController'
+      );
     }
+
+    const newUser = await this.userService.create(
+      req.body,
+      this.config.get('SALT')
+    );
+    const userRdo = fillRdo(UserRdo, newUser);
+    this.created(res, userRdo);
   }
 
   public async login(
     req: RequestWithBody<LoginUserDto>,
     _res: Response
   ): Promise<void> {
-    try {
-      await this.userService.login(req.body);
-    } catch (error) {
-      if (error instanceof UserNotFoundError) {
-        throw new HttpError(
-          StatusCodes.UNAUTHORIZED,
-          error.message,
-          'UserController'
-        );
-      }
+    const email = req.body.email;
+    const userExists = await this.userService.existsByEmail(email);
 
-      if (error instanceof NotImplementedError) {
-        throw new HttpError(
-          StatusCodes.NOT_IMPLEMENTED,
-          error.message,
-          'UserController',
-        );
-      }
-
-      throw error;
+    if (!userExists) {
+      throw new HttpError(
+        StatusCodes.UNAUTHORIZED,
+        `User with email ${email} not found.`,
+        'UserController'
+      );
     }
+
+    await this.userService.login(req.body);
+  }
+
+  public async uploadAvatar(
+    req: Request,
+    res: Response
+  ): Promise<void> {
+    this.created(res, {
+      filepath: req.file?.path
+    });
   }
 }
