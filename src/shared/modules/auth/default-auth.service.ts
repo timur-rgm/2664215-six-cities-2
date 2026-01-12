@@ -11,6 +11,10 @@ import {
   type UserEntity,
   type UserService
 } from '../user/index.js';
+import {
+  IncorrectUserPasswordError,
+  UserNotFoundError
+} from './errors/index.js';
 
 @injectable()
 export class DefaultAuthService implements AuthService {
@@ -47,14 +51,14 @@ export class DefaultAuthService implements AuthService {
 
     if (!user) {
       this.logger.warn(`User with email ${dto.email} not found.`);
-      throw new Error(`User with email ${dto.email} not found.`);
+      throw new UserNotFoundError();
     }
 
     const salt = this.config.get('SALT');
 
     if (!user.verifyPassword(dto.password, salt)) {
       this.logger.warn(`Incorrect password for ${dto.email}`);
-      throw new Error(`Incorrect password for ${dto.email}`);
+      throw new IncorrectUserPasswordError();
     }
 
     return user;
