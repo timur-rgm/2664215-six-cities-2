@@ -44,6 +44,11 @@ export class UserEntity extends defaultClasses.TimeStamps implements UserType {
   public setPassword(password: string, salt: string) {
     this.password = createSHA256(password, salt);
   }
+
+  public verifyPassword(password: string, salt: string): boolean {
+    const passwordHash = createSHA256(password, salt);
+    return passwordHash === this.password;
+  }
 }
 
 export const UserModel = getModelForClass(UserEntity);
