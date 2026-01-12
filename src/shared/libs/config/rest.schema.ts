@@ -9,6 +9,8 @@ export type RestSchema = {
   DB_HOST: string;
   DB_PORT: string;
   DB_NAME: string;
+  JWT_ALGORITHM: string;
+  JWT_EXPIRED: string;
   JWT_SECRET: string;
   PORT: number;
   SALT: string;
@@ -45,6 +47,18 @@ export const restConfigSchema = convict<RestSchema>({
     format: String,
     env: 'DB_NAME',
     default: 'six-cities'
+  },
+  JWT_ALGORITHM: {
+    doc: 'Algorithm for JWT',
+    format: String,
+    env: 'JWT_ALGORITHM',
+    default: null
+  },
+  JWT_EXPIRED: {
+    doc: 'Expiration date for JWT',
+    format: String,
+    env: 'JWT_EXPIRED',
+    default: null
   },
   JWT_SECRET: {
     doc: 'Secret for sign JWT',
