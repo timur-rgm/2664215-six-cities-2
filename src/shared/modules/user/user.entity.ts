@@ -15,7 +15,6 @@ export interface UserEntity extends defaultClasses.Base {}
 export class UserEntity extends defaultClasses.TimeStamps implements UserType {
   constructor(userData: UserType) {
     super();
-
     this.name = userData.name;
     this.email = userData.email;
     this.avatarUrl = userData.avatarUrl;
