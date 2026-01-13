@@ -12,7 +12,10 @@ export class AuthExceptionFilter implements ExceptionFilter {
   constructor(
     @inject(Component.Logger)
     private readonly logger: Logger,
-  ) {}
+  ) {
+    this.logger.info('Register AuthExceptionFilter');
+    this.catch = this.catch.bind(this);
+  }
 
   public catch(
     error: Error,

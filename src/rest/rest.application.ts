@@ -13,6 +13,9 @@ export class RestApplication {
   private readonly server: express.Express;
 
   constructor(
+    @inject(Component.AuthExceptionFilter)
+    private readonly authExceptionFilter: ExceptionFilter,
+
     @inject(Component.ExceptionFilter)
     private readonly appExceptionFilter: ExceptionFilter,
 
@@ -69,6 +72,7 @@ export class RestApplication {
   }
 
   private initExceptionFilters() {
+    this.server.use(this.authExceptionFilter.catch);
     this.server.use(this.appExceptionFilter.catch);
   }
 
