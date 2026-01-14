@@ -8,7 +8,9 @@ import { StatusCodes } from 'http-status-codes';
 import type { Middleware } from './middleware.interface.js';
 
 export class ParseTokenMiddleware implements Middleware {
-  constructor(public readonly jwtSecret: string) {}
+  constructor(public readonly jwtSecret: string) {
+    this.execute = this.execute.bind(this);
+  }
 
   public async execute(
     req: Request,
