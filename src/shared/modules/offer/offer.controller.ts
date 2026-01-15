@@ -6,6 +6,7 @@ import {
   DocumentExistsMiddleware,
   HttpError,
   HttpMethod,
+  PrivateRouteMiddleware,
   ValidateDtoMiddleware,
   ValidateMongoObjectIdMiddleware,
   type RequestWithBody,
@@ -61,6 +62,7 @@ export class OfferController extends BaseController {
       method: HttpMethod.Post,
       handler: this.create,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateDtoMiddleware(CreateOfferDto)
       ]
     });
@@ -69,6 +71,7 @@ export class OfferController extends BaseController {
       method: HttpMethod.Patch,
       handler: this.update,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateMongoObjectIdMiddleware('offerId'),
         new ValidateDtoMiddleware(UpdateOfferDto),
         new DocumentExistsMiddleware(
@@ -83,6 +86,7 @@ export class OfferController extends BaseController {
       method: HttpMethod.Delete,
       handler: this.delete,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateMongoObjectIdMiddleware('offerId'),
         new DocumentExistsMiddleware(
           this.offerService,
@@ -96,6 +100,7 @@ export class OfferController extends BaseController {
       method: HttpMethod.Put,
       handler: this.addToFavorites,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateMongoObjectIdMiddleware('offerId'),
         new DocumentExistsMiddleware(
           this.offerService,
@@ -109,6 +114,7 @@ export class OfferController extends BaseController {
       method: HttpMethod.Delete,
       handler: this.removeFromFavorites,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateMongoObjectIdMiddleware('offerId'),
         new DocumentExistsMiddleware(
           this.offerService,
