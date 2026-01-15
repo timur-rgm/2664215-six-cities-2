@@ -7,6 +7,7 @@ import {
   BaseController,
   HttpError,
   HttpMethod,
+  PrivateRouteMiddleware,
   ValidateDtoMiddleware,
   ValidateMongoObjectIdMiddleware,
   UploadFileMiddleware,
@@ -59,6 +60,7 @@ export class UserController extends BaseController {
       method: HttpMethod.Post,
       handler: this.uploadAvatar,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateMongoObjectIdMiddleware('userId'),
         new UploadFileMiddleware(
           this.config.get('UPLOAD_DIRECTORY'),

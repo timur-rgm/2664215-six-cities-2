@@ -17,10 +17,19 @@ export class DefaultOfferService implements OfferService {
     private readonly offerModel: types.ModelType<OfferEntity>,
   ) {}
 
-  public async createOffer(offerData: CreateOfferDto): Promise<DocumentType<OfferEntity>> {
-    const result = await this.offerModel.create(offerData);
+  public async createOffer(
+    offerData: CreateOfferDto,
+    userId: string
+  ): Promise<DocumentType<OfferEntity>> {
+    const result = await this.offerModel.create({ ...offerData, userId });
     this.logger.info(`New offer created: ${offerData.title}`);
     return result;
+  }
+
+  public deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
+    return this.offerModel
+      .findByIdAndDelete(offerId)
+      .exec();
   }
 
   public async exists(offerId: string): Promise<boolean> {
@@ -82,12 +91,6 @@ export class DefaultOfferService implements OfferService {
       .exec();
   }
 
-  public deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
-    return this.offerModel
-      .findByIdAndDelete(offerId)
-      .exec();
-  }
-
   public findAllFavorites(): Promise<DocumentType<OfferEntity>[]> {
     return this.offerModel
       .find({ isFavorite: true })
@@ -100,7 +103,7 @@ export class DefaultOfferService implements OfferService {
     isFavorite: boolean
   ): Promise<DocumentType<OfferEntity> | null> {
     return await this.offerModel
-      .findByIdAndUpdate(offerId, {isFavorite}, {new: true})
+      .findByIdAndUpdate(offerId, { isFavorite }, { new: true })
       .populate(['userId'])
       .exec();
   }

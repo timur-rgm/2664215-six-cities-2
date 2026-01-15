@@ -5,7 +5,6 @@ import {
   IsBoolean,
   IsEnum,
   IsInt,
-  IsMongoId,
   IsNumber,
   IsString,
   Max,
@@ -132,11 +131,6 @@ export class CreateOfferDto {
     message: CreateOfferValidationMessage.amenities.itemType
   })
   public amenities: Amenity[];
-
-  @IsMongoId({
-    message: CreateOfferValidationMessage.userId.id
-  })
-  public userId: string;
 
   @ValidateNested()
   @Type(() => Coordinates)

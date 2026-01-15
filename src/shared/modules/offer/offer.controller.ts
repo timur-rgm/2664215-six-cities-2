@@ -173,7 +173,7 @@ export class OfferController extends BaseController {
     req: RequestWithBody<CreateOfferDto>,
     res: Response
   ): Promise<void> {
-    const { body } = req;
+    const { body, tokenPayload } = req;
     const title = body.title;
 
     const offerExists = await this.offerService.existsByTitle(title);
@@ -181,12 +181,12 @@ export class OfferController extends BaseController {
     if (offerExists) {
       throw new HttpError(
         StatusCodes.UNPROCESSABLE_ENTITY,
-        `Offer with name ${title} already exists.`,
+        `Offer with name ${title} already exists`,
         'OfferController'
       );
     }
 
-    const newOffer = await this.offerService.createOffer(body);
+    const newOffer = await this.offerService.createOffer(body, tokenPayload.id);
     const offerRdo = fillRdo(OfferRdo, newOffer);
     this.created(res, offerRdo);
   }
