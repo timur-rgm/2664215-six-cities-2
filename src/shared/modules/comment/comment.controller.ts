@@ -45,7 +45,7 @@ export class CommentController extends BaseController {
     req: RequestWithBody<CreateCommentDto>,
     res: Response
   ): Promise<void> {
-    const { body } = req;
+    const { body, tokenPayload } = req;
 
     const offerExists = await this.offerService.exists(body.offerId);
 
@@ -57,7 +57,7 @@ export class CommentController extends BaseController {
       );
     }
 
-    const comment = await this.commentService.createComment(body);
+    const comment = await this.commentService.createComment(body, tokenPayload.id);
     const commentRdo = fillRdo(CommentRdo, comment);
     this.created(res, commentRdo);
   }
