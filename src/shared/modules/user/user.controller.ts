@@ -56,6 +56,11 @@ export class UserController extends BaseController {
       ]
     });
     this.addRoute({
+      path: 'login',
+      method: HttpMethod.Get,
+      handler: this.checkAuth
+    });
+    this.addRoute({
       path: '/:userId/avatar',
       method: HttpMethod.Post,
       handler: this.uploadAvatar,
@@ -103,6 +108,26 @@ export class UserController extends BaseController {
       email: user.email,
       token
     });
+    this.ok(res, responseData);
+  }
+
+  public async checkAuth(
+    req: Request,
+    res: Response
+  ): Promise<void> {
+    const { tokenPayload } = req;
+
+    const user = await this.userService.findByEmail(tokenPayload.email);
+
+    if (!user) {
+      throw new HttpError(
+        StatusCodes.UNAUTHORIZED,
+        'Unauthorized',
+        'UserController'
+      );
+    }
+
+    const responseData = fillRdo(LoggedUserRdo, user);
     this.ok(res, responseData);
   }
 
