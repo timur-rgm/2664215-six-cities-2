@@ -213,29 +213,29 @@ export class OfferController extends BaseController {
   }
 
   public async addToFavorites(
-    _req: RequestWithParams<{ offerId: string }>,
-    _res: Response
+    req: RequestWithParams<{ offerId: string }>,
+    res: Response
   ): Promise<void> {
-    // const { params } = req;
-    // const updatedOffer = await this.offerService.setIsFavorite(
-    //   params.offerId,
-    //   true
-    // );
-    // const offerRdo = fillRdo(OfferRdo, updatedOffer);
-    // this.ok(res, offerRdo);
+    const { params, tokenPayload } = req;
+    const updatedOffer = await this.offerService.addToFavorites(
+      params.offerId,
+      tokenPayload.id
+    );
+    const offerRdo = fillRdo(OfferRdo, updatedOffer);
+    this.ok(res, offerRdo);
   }
 
   public async removeFromFavorites(
-    _req: RequestWithParams<{ offerId: string }>,
-    _res: Response
+    req: RequestWithParams<{ offerId: string }>,
+    res: Response
   ): Promise<void> {
-    // const { params } = req;
-    // const updatedOffer = await this.offerService.setIsFavorite(
-    //   params.offerId,
-    //   false
-    // );
-    // const offerRdo = fillRdo(OfferRdo, updatedOffer);
-    // this.ok(res, offerRdo);
+    const { params, tokenPayload } = req;
+    const updatedOffer = await this.offerService.removeFromFavorites(
+      params.offerId,
+      tokenPayload.id
+    );
+    const offerRdo = fillRdo(OfferRdo, updatedOffer);
+    this.ok(res, offerRdo);
   }
 
   public async getComments(
