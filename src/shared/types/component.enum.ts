@@ -7,6 +7,8 @@ export const Component = {
   Config: Symbol.for('Config'),
   DatabaseClient: Symbol.for('DatabaseClient'),
   ExceptionFilter: Symbol.for('ExceptionFilter'),
+  FavoriteModel: Symbol.for('FavoriteModel'),
+  FavoriteService: Symbol.for('FavoriteService'),
   Logger: Symbol.for('Logger'),
   OfferController: Symbol.for('OfferController'),
   OfferModel: Symbol.for('OfferModel'),
