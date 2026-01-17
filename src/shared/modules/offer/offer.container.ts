@@ -1,7 +1,6 @@
 import { Container } from 'inversify';
-import { types } from '@typegoose/typegoose';
 
-import { Component } from '../../types/index.js';
+import { Component, type ModelType } from '../../types/index.js';
 import { OfferController } from './offer.controller.js';
 import { OfferModel } from './offer.entity.js';
 import { DefaultOfferService } from './default-offer.service.js';
@@ -18,7 +17,7 @@ export const createOfferContainer = () => {
     .inSingletonScope();
 
   container
-    .bind<types.ModelType<OfferEntity>>(Component.OfferModel)
+    .bind<ModelType<OfferEntity>>(Component.OfferModel)
     .toConstantValue(OfferModel);
 
   container

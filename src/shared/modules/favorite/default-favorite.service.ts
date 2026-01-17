@@ -1,0 +1,34 @@
+import { inject, injectable } from 'inversify';
+import type { DocumentType } from '@typegoose/typegoose';
+
+import { Component, type ModelType } from '../../types/index.js';
+import type { FavoriteService } from './favorite-service.interface.js';
+import type { FavoriteEntity } from './favorite.entity.js';
+
+@injectable()
+export class DefaultFavoriteService implements FavoriteService {
+  constructor(
+    @inject(Component.FavoriteModel)
+    private readonly favoriteModel: ModelType<FavoriteEntity>
+  ) {}
+
+  public async findByUserId(
+    userId: string
+  ): Promise<DocumentType<FavoriteEntity>[]> {
+    return this.favoriteModel.find({ userId }).exec();
+  }
+
+  public async addFavorite(
+    userId: string,
+    offerId: string
+  ): Promise<void> {
+    await this.favoriteModel.create({ userId, offerId });
+  }
+
+  public async removeFavorite(
+    userId: string,
+    offerId: string
+  ): Promise<void> {
+    await this.favoriteModel.deleteOne({ userId, offerId }).exec();
+  }
+}

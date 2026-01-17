@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
-import { types, type DocumentType } from '@typegoose/typegoose';
+import type { DocumentType } from '@typegoose/typegoose';
 
-import { City, Component } from '../../types/index.js';
+import { City, Component, type ModelType } from '../../types/index.js';
 import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
 import type { Logger } from '../../libs/logger/index.js';
 import type { OfferEntity } from './offer.entity.js';
@@ -14,7 +14,7 @@ export class DefaultOfferService implements OfferService {
     private readonly logger: Logger,
 
     @inject(Component.OfferModel)
-    private readonly offerModel: types.ModelType<OfferEntity>,
+    private readonly offerModel: ModelType<OfferEntity>,
   ) {}
 
   public async createOffer(
