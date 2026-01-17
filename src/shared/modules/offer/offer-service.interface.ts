@@ -5,6 +5,10 @@ import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
 import type { OfferEntity } from './offer.entity.js';
 
 export interface OfferService extends DocumentExists {
+  addToFavorites(
+    offerId: string,
+    userId: string
+  ): Promise<DocumentType<OfferEntity> | null>;
   createOffer(
     offerData: CreateOfferDto,
     userId: string
@@ -18,9 +22,9 @@ export interface OfferService extends DocumentExists {
   ): Promise<DocumentType<OfferEntity>[]>;
   findAllFavorites(): Promise<DocumentType<OfferEntity>[]>;
   findById(offerId: string): Promise<DocumentType<OfferEntity> | null>;
-  setIsFavorite(
+  removeFromFavorites(
     offerId: string,
-    isFavorite: boolean
+    userId: string
   ): Promise<DocumentType<OfferEntity> | null>;
   updateById(
     offerId: string,

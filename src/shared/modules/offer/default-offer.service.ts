@@ -3,6 +3,7 @@ import type { DocumentType } from '@typegoose/typegoose';
 
 import { City, Component, type ModelType } from '../../types/index.js';
 import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
+import type { FavoriteService } from '../favorite/index.js';
 import type { Logger } from '../../libs/logger/index.js';
 import type { OfferEntity } from './offer.entity.js';
 import type { OfferService } from './offer-service.interface.js';
@@ -10,12 +11,23 @@ import type { OfferService } from './offer-service.interface.js';
 @injectable()
 export class DefaultOfferService implements OfferService {
   constructor(
+    @inject(Component.FavoriteService)
+    private readonly favoriteService: FavoriteService,
+
     @inject(Component.Logger)
     private readonly logger: Logger,
 
     @inject(Component.OfferModel)
     private readonly offerModel: ModelType<OfferEntity>,
   ) {}
+
+  public async addToFavorites(
+    offerId: string,
+    userId: string,
+  ): Promise<DocumentType<OfferEntity> | null> {
+    await this.favoriteService.addFavorite(userId, offerId);
+    return this.findById(offerId);
+  }
 
   public async createOffer(
     offerData: CreateOfferDto,
@@ -98,14 +110,12 @@ export class DefaultOfferService implements OfferService {
       .exec();
   }
 
-  public async setIsFavorite(
+  public async removeFromFavorites(
     offerId: string,
-    isFavorite: boolean
+    userId: string,
   ): Promise<DocumentType<OfferEntity> | null> {
-    return await this.offerModel
-      .findByIdAndUpdate(offerId, { isFavorite }, { new: true })
-      .populate(['userId'])
-      .exec();
+    await this.favoriteService.removeFavorite(userId, offerId);
+    return this.findById(offerId);
   }
 
   public async updateById(
