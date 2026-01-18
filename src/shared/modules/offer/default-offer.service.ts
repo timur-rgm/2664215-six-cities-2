@@ -1,6 +1,7 @@
 import { inject, injectable } from 'inversify';
 import type { DocumentType } from '@typegoose/typegoose';
 
+import { addIsFavoriteToOffers } from './helpers/index.js';
 import { City, Component, type ModelType } from '../../types/index.js';
 import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
 import type { FavoriteService } from '../favorite/index.js';
@@ -52,18 +53,18 @@ export class DefaultOfferService implements OfferService {
     return await this.offerModel.exists({ title }) !== null;
   }
 
-  public findAll(
+  public async findAll(
     city?: City,
     isPremium?: boolean,
     isFavorite?: boolean,
-  ): Promise<DocumentType<OfferEntity>[]> {
-    return this.offerModel
-      .aggregate([
+    userId?: string
+  ): Promise<OfferEntity[]> {
+    const offers = await this.offerModel
+      .aggregate<OfferEntity>([
         {
           $match: {
             ...(city && { city }),
             ...(isPremium !== undefined && { isPremium }),
-            ...(isFavorite !== undefined && { isFavorite }),
           }
         },
         {
@@ -94,6 +95,30 @@ export class DefaultOfferService implements OfferService {
         { $unset: 'comments' },
       ])
       .exec();
+
+    if (!userId) {
+      if (isFavorite === true) {
+        return [];
+      }
+
+      return offers.map((offer) => ({
+        ...offer,
+        isFavorite: false
+      }));
+    }
+
+    const favorites = await this.favoriteService.findByUserId(userId);
+
+    const offersWithIsFavorite = addIsFavoriteToOffers(
+      offers,
+      favorites,
+    );
+
+    if (isFavorite === true) {
+      return offersWithIsFavorite.filter((offer) => offer.isFavorite);
+    }
+
+    return offersWithIsFavorite;
   }
 
   public async findById(offerId: string): Promise<DocumentType<OfferEntity> | null> {

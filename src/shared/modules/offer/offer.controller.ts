@@ -146,13 +146,14 @@ export class OfferController extends BaseController {
     }>,
     res: Response
   ): Promise<void> {
-    const { query } = req;
+    const { query, tokenPayload } = req;
     const { city, isPremium, isFavorite } = query;
 
     const offers = await this.offerService.findAll(
       city,
       parseBooleanString(isPremium),
-      parseBooleanString(isFavorite)
+      parseBooleanString(isFavorite),
+      tokenPayload?.id
     );
     const responseData = fillRdo(OfferRdo, offers);
 
