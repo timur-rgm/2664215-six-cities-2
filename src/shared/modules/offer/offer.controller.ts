@@ -164,8 +164,11 @@ export class OfferController extends BaseController {
     req: RequestWithParams<{ offerId: string }>,
     res: Response
   ): Promise<void> {
-    const { params } = req;
-    const offer = await this.offerService.findById(params.offerId);
+    const { params, tokenPayload } = req;
+    const offer = await this.offerService.findById(
+      params.offerId,
+      tokenPayload?.id
+    );
     const responseData = fillRdo(OfferRdo, offer);
     this.ok(res, responseData);
   }

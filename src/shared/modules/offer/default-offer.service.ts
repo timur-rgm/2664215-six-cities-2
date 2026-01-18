@@ -2,11 +2,12 @@ import { inject, injectable } from 'inversify';
 import type { DocumentType } from '@typegoose/typegoose';
 
 import { addIsFavoriteToOffers } from './helpers/index.js';
-import { City, Component, type ModelType } from '../../types/index.js';
+import { City, Component, type ModelType, } from '../../types/index.js';
 import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
 import type { FavoriteService } from '../favorite/index.js';
 import type { Logger } from '../../libs/logger/index.js';
 import type { OfferEntity } from './offer.entity.js';
+import type { OfferEntityWithIsFavorite } from './types/offer-entity-with-favorite.type.js';
 import type { OfferService } from './offer-service.interface.js';
 
 @injectable()
@@ -25,9 +26,9 @@ export class DefaultOfferService implements OfferService {
   public async addToFavorites(
     offerId: string,
     userId: string,
-  ): Promise<DocumentType<OfferEntity> | null> {
+  ): Promise<OfferEntityWithIsFavorite | null> {
     await this.favoriteService.addFavorite(userId, offerId);
-    return this.findById(offerId);
+    return this.findById(offerId, userId);
   }
 
   public async createOffer(
@@ -58,7 +59,7 @@ export class DefaultOfferService implements OfferService {
     isPremium?: boolean,
     isFavorite?: boolean,
     userId?: string
-  ): Promise<OfferEntity[]> {
+  ): Promise<OfferEntityWithIsFavorite[]> {
     const filterOffers = () => ({
       $match: {
         ...(city && { city }),
@@ -138,19 +139,42 @@ export class DefaultOfferService implements OfferService {
     return offersWithIsFavorite;
   }
 
-  public async findById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
-    return await this.offerModel
+  public async findById(
+    offerId: string,
+    userId?: string
+  ): Promise<OfferEntityWithIsFavorite | null> {
+    const offer = await this.offerModel
       .findById(offerId)
       .populate(['userId'])
       .exec();
+
+    if (!offer) {
+      return null;
+    }
+
+    if (!userId) {
+      return {
+        ...offer,
+        isFavorite: false
+      };
+    }
+
+    const favorites = await this.favoriteService.findByUserId(userId);
+    const favoritesIds = favorites.map((favorite) => String(favorite.offerId));
+    const isFavorite = favoritesIds.includes(offer.id);
+
+    return {
+      ...offer,
+      isFavorite
+    };
   }
 
   public async removeFromFavorites(
     offerId: string,
     userId: string,
-  ): Promise<DocumentType<OfferEntity> | null> {
+  ): Promise<OfferEntityWithIsFavorite | null> {
     await this.favoriteService.removeFavorite(userId, offerId);
-    return this.findById(offerId);
+    return this.findById(offerId, userId);
   }
 
   public async updateById(
@@ -158,7 +182,7 @@ export class DefaultOfferService implements OfferService {
     offerData: UpdateOfferDto
   ): Promise<DocumentType<OfferEntity> | null> {
     return await this.offerModel
-      .findByIdAndUpdate(offerId, offerData, {new: true})
+      .findByIdAndUpdate(offerId, offerData, { new: true })
       .populate(['userId'])
       .exec();
   }
