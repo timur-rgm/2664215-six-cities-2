@@ -59,40 +59,57 @@ export class DefaultOfferService implements OfferService {
     isFavorite?: boolean,
     userId?: string
   ): Promise<OfferEntity[]> {
+    const filterOffers = () => ({
+      $match: {
+        ...(city && { city }),
+        ...(isPremium !== undefined && { isPremium }),
+      }
+    });
+
+    const attachComments = () => ({
+      $lookup: {
+        from: 'comments',
+        let: { offerId: '$_id' },
+        pipeline: [
+          { $match: { $expr: { $eq: ['$offerId', '$$offerId'] } } },
+          { $project: { _id: 1}}
+        ],
+        as: 'comments',
+      }
+    });
+
+    const attachUser = () => ({
+      $lookup: {
+        from: 'users',
+        localField: 'userId',
+        foreignField: '_id',
+        as: 'userId'
+      }
+    });
+
+    const flattenUser = () => ({
+      $unwind: '$userId'
+    });
+
+    const addComputedFields = () => ({
+      $addFields: {
+        id: { $toString: '$_id'},
+        commentCount: { $size: '$comments'}
+      }
+    });
+
+    const removeCommentsField = () => ({
+      $unset: 'comments'
+    });
+
     const offers = await this.offerModel
       .aggregate<OfferEntity>([
-        {
-          $match: {
-            ...(city && { city }),
-            ...(isPremium !== undefined && { isPremium }),
-          }
-        },
-        {
-          $lookup: {
-            from: 'comments',
-            let: { offerId: '$_id' },
-            pipeline: [
-              { $match: { $expr: { $eq: ['$offerId', '$$offerId'] } } },
-              { $project: { _id: 1}}
-            ],
-            as: 'comments',
-          }
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'userId',
-            foreignField: '_id',
-            as: 'userId'
-          }
-        },
-        {
-          $unwind: '$userId'
-        },
-        { $addFields:
-          { id: { $toString: '$_id'}, commentCount: { $size: '$comments'} }
-        },
-        { $unset: 'comments' },
+        filterOffers(),
+        attachComments(),
+        attachUser(),
+        flattenUser(),
+        addComputedFields(),
+        removeCommentsField(),
       ])
       .exec();
 
