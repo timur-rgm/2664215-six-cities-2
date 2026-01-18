@@ -21,7 +21,6 @@ export interface OfferService extends DocumentExists {
     isFavorite?: boolean,
     userId?: string
   ): Promise<OfferEntity[]>;
-  findAllFavorites(): Promise<DocumentType<OfferEntity>[]>;
   findById(offerId: string): Promise<DocumentType<OfferEntity> | null>;
   removeFromFavorites(
     offerId: string,

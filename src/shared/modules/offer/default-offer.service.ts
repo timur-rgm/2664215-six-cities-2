@@ -128,13 +128,6 @@ export class DefaultOfferService implements OfferService {
       .exec();
   }
 
-  public findAllFavorites(): Promise<DocumentType<OfferEntity>[]> {
-    return this.offerModel
-      .find({ isFavorite: true })
-      .populate(['userId'])
-      .exec();
-  }
-
   public async removeFromFavorites(
     offerId: string,
     userId: string,
