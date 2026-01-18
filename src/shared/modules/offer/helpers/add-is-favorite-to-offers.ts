@@ -6,7 +6,7 @@ import type { OfferEntity } from '../offer.entity.js';
 export const addIsFavoriteToOffers = (
   offers: OfferEntity[],
   favorites: DocumentType<FavoriteEntity>[],
-): OfferEntity[] => {
+): (OfferEntity & { isFavorite: boolean })[] => {
   const favoritesIds = favorites.map((favorite) => String(favorite.offerId));
   const favoriteIdsSet = new Set(favoritesIds);
 

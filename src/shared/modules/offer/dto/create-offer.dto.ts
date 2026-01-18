@@ -77,11 +77,6 @@ export class CreateOfferDto {
   })
   public isPremium: boolean;
 
-  @IsBoolean({
-    message: CreateOfferValidationMessage.isFavorite.type
-  })
-  public isFavorite: boolean;
-
   @IsEnum(HousingType, {
     message: CreateOfferValidationMessage.type.type
   })

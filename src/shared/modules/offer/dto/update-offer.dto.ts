@@ -78,12 +78,6 @@ export class UpdateOfferDto {
   public isPremium?: boolean;
 
   @IsOptional()
-  @IsBoolean({
-    message: UpdateOfferValidationMessage.isFavorite.type
-  })
-  public isFavorite?: boolean;
-
-  @IsOptional()
   @IsEnum(HousingType, {
     message: UpdateOfferValidationMessage.type.type
   })

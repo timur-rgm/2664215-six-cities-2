@@ -1,11 +1,12 @@
-import { DefaultUserService, UserModel, UserService } from '../../shared/modules/user/index.js';
-import { DefaultOfferService, OfferModel, OfferService } from '../../shared/modules/offer/index.js';
-import { DatabaseClient, MongoDatabaseClient } from '../../shared/libs/database-client/index.js';
-import { TSVFileReader } from '../../shared/libs/index.js';
+import { ConsoleLogger, type Logger } from '../../shared/libs/logger/index.js';
 import { createOffer, getErrorMessage, getMongoURI } from '../../shared/helpers/index.js';
-import { ConsoleLogger, Logger } from '../../shared/libs/logger/index.js';
-import { FileReaderEvents } from '../../shared/constants/index.js';
+import { DefaultFavoriteService, FavoriteModel } from '../../shared/modules/favorite/index.js';
+import { DefaultOfferService, OfferModel, type OfferService } from '../../shared/modules/offer/index.js';
+import { DefaultUserService, UserModel, type UserService } from '../../shared/modules/user/index.js';
 import { DEFAULT_USER_PASSWORD } from './command.constant.js';
+import { FileReaderEvents } from '../../shared/constants/index.js';
+import { MongoDatabaseClient, type DatabaseClient } from '../../shared/libs/database-client/index.js';
+import { TSVFileReader } from '../../shared/libs/index.js';
 import type { Command } from './command.interface.js';
 import type { OfferType } from '../../shared/types/index.js';
 
@@ -22,7 +23,13 @@ export class ImportCommand implements Command {
 
     this.logger = new ConsoleLogger();
     this.databaseClient = new MongoDatabaseClient(this.logger);
-    this.offerService = new DefaultOfferService(this.logger, OfferModel);
+
+    const favoriteService = new DefaultFavoriteService(FavoriteModel);
+    this.offerService = new DefaultOfferService(
+      favoriteService,
+      this.logger,
+      OfferModel
+    );
     this.userService = new DefaultUserService(this.logger, UserModel);
   }
 
@@ -43,10 +50,7 @@ export class ImportCommand implements Command {
       password: DEFAULT_USER_PASSWORD,
     }, this.salt);
 
-    await this.offerService.createOffer({
-      ...offer,
-      userId: user.id
-    });
+    await this.offerService.createOffer(offer,user.id);
   }
 
   public getName(): string {
