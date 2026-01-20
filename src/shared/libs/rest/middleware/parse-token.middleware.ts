@@ -14,7 +14,7 @@ export class ParseTokenMiddleware implements Middleware {
 
   public async execute(
     req: Request,
-    _res: Response,
+    res: Response,
     next: NextFunction
   ): Promise<void> {
     const authorizationHeader = req.headers?.authorization;
@@ -32,7 +32,7 @@ export class ParseTokenMiddleware implements Middleware {
       );
 
       if (isTokenPayload(payload)) {
-        req.tokenPayload = payload;
+        res.locals.tokenPayload = payload;
         return next();
       } else {
         throw new Error('Bad token');

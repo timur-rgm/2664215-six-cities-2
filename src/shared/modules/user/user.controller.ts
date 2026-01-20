@@ -58,7 +58,10 @@ export class UserController extends BaseController {
     this.addRoute({
       path: 'login',
       method: HttpMethod.Get,
-      handler: this.checkAuth
+      handler: this.checkAuth,
+      middlewares: [
+        new PrivateRouteMiddleware()
+      ]
     });
     this.addRoute({
       path: '/:userId/avatar',
@@ -112,12 +115,12 @@ export class UserController extends BaseController {
   }
 
   public async checkAuth(
-    req: Request,
+    _req: Request,
     res: Response
   ): Promise<void> {
-    const { tokenPayload } = req;
+    const { locals } = res;
 
-    const user = await this.userService.findByEmail(tokenPayload.email);
+    const user = await this.userService.findByEmail(locals.tokenPayload!.email);
 
     if (!user) {
       throw new HttpError(

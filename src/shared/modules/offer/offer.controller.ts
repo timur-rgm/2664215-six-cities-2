@@ -146,14 +146,15 @@ export class OfferController extends BaseController {
     }>,
     res: Response
   ): Promise<void> {
-    const { query, tokenPayload } = req;
+    const { query } = req;
+    const { locals } = res;
     const { city, isPremium, isFavorite } = query;
 
     const offers = await this.offerService.findAll(
       city,
       parseBooleanString(isPremium),
       parseBooleanString(isFavorite),
-      tokenPayload?.id
+      locals.tokenPayload?.id
     );
     const responseData = fillRdo(OfferRdo, offers);
 
@@ -164,10 +165,11 @@ export class OfferController extends BaseController {
     req: RequestWithParams<{ offerId: string }>,
     res: Response
   ): Promise<void> {
-    const { params, tokenPayload } = req;
+    const { params } = req;
+    const { locals } = res;
     const offer = await this.offerService.findById(
       params.offerId,
-      tokenPayload?.id
+      locals.tokenPayload?.id
     );
     const responseData = fillRdo(OfferRdo, offer);
     this.ok(res, responseData);
@@ -177,7 +179,8 @@ export class OfferController extends BaseController {
     req: RequestWithBody<CreateOfferDto>,
     res: Response
   ): Promise<void> {
-    const { body, tokenPayload } = req;
+    const { body } = req;
+    const { locals } = res;
     const title = body.title;
 
     const offerExists = await this.offerService.existsByTitle(title);
@@ -190,7 +193,7 @@ export class OfferController extends BaseController {
       );
     }
 
-    const newOffer = await this.offerService.createOffer(body, tokenPayload.id);
+    const newOffer = await this.offerService.createOffer(body, locals.tokenPayload!.id);
     const offerRdo = fillRdo(OfferRdo, newOffer);
     this.created(res, offerRdo);
   }
@@ -220,10 +223,11 @@ export class OfferController extends BaseController {
     req: RequestWithParams<{ offerId: string }>,
     res: Response
   ): Promise<void> {
-    const { params, tokenPayload } = req;
+    const { params } = req;
+    const { locals } = res;
     const updatedOffer = await this.offerService.addToFavorites(
       params.offerId,
-      tokenPayload.id
+      locals.tokenPayload!.id
     );
     const offerRdo = fillRdo(OfferRdo, updatedOffer);
     this.ok(res, offerRdo);
@@ -233,10 +237,11 @@ export class OfferController extends BaseController {
     req: RequestWithParams<{ offerId: string }>,
     res: Response
   ): Promise<void> {
-    const { params, tokenPayload } = req;
+    const { params } = req;
+    const { locals } = res;
     const updatedOffer = await this.offerService.removeFromFavorites(
       params.offerId,
-      tokenPayload.id
+      locals.tokenPayload!.id
     );
     const offerRdo = fillRdo(OfferRdo, updatedOffer);
     this.ok(res, offerRdo);

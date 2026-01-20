@@ -1,7 +1,7 @@
 import type { TokenPayload } from './src/shared/types/index.js';
 
 declare module 'express-serve-static-core' {
-  export interface Request {
-    tokenPayload: TokenPayload;
+  export interface Locals {
+    tokenPayload?: TokenPayload;
   }
 }
