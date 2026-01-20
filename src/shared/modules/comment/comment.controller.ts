@@ -60,7 +60,7 @@ export class CommentController extends BaseController {
       );
     }
 
-    const comment = await this.commentService.createComment(locals.tokenPayload!.id,body);
+    const comment = await this.commentService.createComment(locals.tokenPayload!.userId,body);
     const commentRdo = fillRdo(CommentRdo, comment);
     this.created(res, commentRdo);
   }

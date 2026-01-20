@@ -154,7 +154,7 @@ export class OfferController extends BaseController {
       city,
       parseBooleanString(isPremium),
       parseBooleanString(isFavorite),
-      locals.tokenPayload?.id
+      locals.tokenPayload?.userId
     );
     const responseData = fillRdo(OfferRdo, offers);
 
@@ -169,7 +169,7 @@ export class OfferController extends BaseController {
     const { locals } = res;
     const offer = await this.offerService.findById(
       params.offerId,
-      locals.tokenPayload?.id
+      locals.tokenPayload?.userId
     );
     const responseData = fillRdo(OfferRdo, offer);
     this.ok(res, responseData);
@@ -193,7 +193,7 @@ export class OfferController extends BaseController {
       );
     }
 
-    const newOffer = await this.offerService.createOffer(body, locals.tokenPayload!.id);
+    const newOffer = await this.offerService.createOffer(body, locals.tokenPayload!.userId);
     const offerRdo = fillRdo(OfferRdo, newOffer);
     this.created(res, offerRdo);
   }
@@ -227,7 +227,7 @@ export class OfferController extends BaseController {
     const { locals } = res;
     const updatedOffer = await this.offerService.addToFavorites(
       params.offerId,
-      locals.tokenPayload!.id
+      locals.tokenPayload!.userId
     );
     const offerRdo = fillRdo(OfferRdo, updatedOffer);
     this.ok(res, offerRdo);
@@ -241,7 +241,7 @@ export class OfferController extends BaseController {
     const { locals } = res;
     const updatedOffer = await this.offerService.removeFromFavorites(
       params.offerId,
-      locals.tokenPayload!.id
+      locals.tokenPayload!.userId
     );
     const offerRdo = fillRdo(OfferRdo, updatedOffer);
     this.ok(res, offerRdo);
