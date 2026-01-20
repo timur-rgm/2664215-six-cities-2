@@ -29,6 +29,10 @@ export class DefaultFavoriteService implements FavoriteService {
     ).exec();
   }
 
+  public async removeByOfferId(offerId: string): Promise<void> {
+    await this.favoriteModel.deleteMany({ offerId }).exec();
+  }
+
   public async removeFavorite(
     userId: string,
     offerId: string

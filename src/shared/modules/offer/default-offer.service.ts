@@ -40,7 +40,8 @@ export class DefaultOfferService implements OfferService {
     return result;
   }
 
-  public deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
+  public async deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
+    await this.favoriteService.removeByOfferId(offerId);
     return this.offerModel
       .findByIdAndDelete(offerId)
       .exec();
