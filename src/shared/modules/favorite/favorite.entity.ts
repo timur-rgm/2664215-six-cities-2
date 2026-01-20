@@ -1,6 +1,7 @@
 import {
   defaultClasses,
   getModelForClass,
+  index,
   modelOptions,
   prop,
   type Ref
@@ -11,6 +12,7 @@ import { OfferEntity } from '../offer/index.js';
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export interface FavoriteEntity extends defaultClasses.Base {}
 
+@index({ userId: 1, offerId: 1 }, { unique: true })
 @modelOptions({
   schemaOptions: {
     collection: 'favorites',

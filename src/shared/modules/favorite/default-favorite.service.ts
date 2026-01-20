@@ -22,7 +22,11 @@ export class DefaultFavoriteService implements FavoriteService {
     userId: string,
     offerId: string
   ): Promise<void> {
-    await this.favoriteModel.create({ userId, offerId });
+    await this.favoriteModel.updateOne(
+      { userId, offerId },
+      { $setOnInsert: { userId, offerId } },
+      { upsert: true }
+    ).exec();
   }
 
   public async removeFavorite(
