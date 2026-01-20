@@ -18,8 +18,8 @@ export class DefaultCommentService implements CommentService {
   ) {}
 
   public async createComment(
-    dto: CreateCommentDto,
     userId: string,
+    dto: CreateCommentDto,
   ): Promise<DocumentType<CommentEntity>> {
     const comment = await this.commentModel.create({ ...dto, userId });
     const { offerId } = comment;
