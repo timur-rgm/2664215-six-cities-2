@@ -1,7 +1,7 @@
 import { inject, injectable } from 'inversify';
+import { Types, type PipelineStage } from 'mongoose';
 import type { DocumentType } from '@typegoose/typegoose';
 
-import { addIsFavoriteToOffers } from './helpers/index.js';
 import { City, Component, type ModelType, } from '../../types/index.js';
 import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
 import type { FavoriteService } from '../favorite/index.js';
@@ -61,14 +61,14 @@ export class DefaultOfferService implements OfferService {
     isFavorite?: boolean,
     userId?: string
   ): Promise<OfferEntityWithIsFavorite[]> {
-    const filterOffers = () => ({
+    const filterOffers = (): PipelineStage => ({
       $match: {
         ...(city && { city }),
         ...(isPremium !== undefined && { isPremium }),
       }
     });
 
-    const attachComments = () => ({
+    const attachComments = (): PipelineStage => ({
       $lookup: {
         from: 'comments',
         let: { offerId: '$_id' },
@@ -80,7 +80,7 @@ export class DefaultOfferService implements OfferService {
       }
     });
 
-    const attachUser = () => ({
+    const attachUser = (): PipelineStage => ({
       $lookup: {
         from: 'users',
         localField: 'userId',
@@ -89,55 +89,79 @@ export class DefaultOfferService implements OfferService {
       }
     });
 
-    const flattenUser = () => ({
+    const flattenUser = (): PipelineStage => ({
       $unwind: '$userId'
     });
 
-    const addComputedFields = () => ({
+    const addComputedFields = (): PipelineStage => ({
       $addFields: {
         id: { $toString: '$_id'},
         commentCount: { $size: '$comments'}
       }
     });
 
-    const removeCommentsField = () => ({
+    const attachFavorites = (): PipelineStage => ({
+      $lookup: {
+        from: 'favorites',
+        localField: '_id',
+        foreignField: 'offerId',
+        as: 'favorites'
+      }
+    });
+
+    const addIsFavoriteField = (): PipelineStage => ({
+      $addFields: {
+        isFavorite: userId
+          ? { $in: [new Types.ObjectId(userId), '$favorites.userId'] }
+          : false
+      }
+    });
+
+    const filterByFavorites = (): PipelineStage => ({
+      $match: { isFavorite: true }
+    });
+
+    const removeCommentsField = (): PipelineStage => ({
       $unset: 'comments'
     });
 
-    const offers = await this.offerModel
-      .aggregate<OfferEntity>([
-        filterOffers(),
-        attachComments(),
-        attachUser(),
-        flattenUser(),
-        addComputedFields(),
-        removeCommentsField(),
-      ])
-      .exec();
+    const removeFavoritesField = (): PipelineStage => ({
+      $unset: 'favorites'
+    });
 
-    if (!userId) {
-      if (isFavorite === true) {
+    const pipeline: PipelineStage[] = [
+      filterOffers(),
+      attachComments(),
+      attachUser(),
+      flattenUser(),
+      addComputedFields(),
+    ];
+
+    if (userId) {
+      pipeline.push(
+        attachFavorites(),
+      );
+    }
+
+    pipeline.push(addIsFavoriteField());
+
+    if (isFavorite === true) {
+      if (!userId) {
         return [];
       }
 
-      return offers.map((offer) => ({
-        ...offer,
-        isFavorite: false
-      }));
+      pipeline.push(filterByFavorites());
     }
 
-    const favorites = await this.favoriteService.findByUserId(userId);
+    pipeline.push(removeCommentsField());
 
-    const offersWithIsFavorite = addIsFavoriteToOffers(
-      offers,
-      favorites,
-    );
-
-    if (isFavorite === true) {
-      return offersWithIsFavorite.filter((offer) => offer.isFavorite);
+    if (userId) {
+      pipeline.push(removeFavoritesField());
     }
 
-    return offersWithIsFavorite;
+    return this.offerModel
+      .aggregate<OfferEntityWithIsFavorite>(pipeline)
+      .exec();
   }
 
   public async findById(
