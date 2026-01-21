@@ -12,12 +12,6 @@ export class DefaultFavoriteService implements FavoriteService {
     private readonly favoriteModel: ModelType<FavoriteEntity>
   ) {}
 
-  public async findByUserId(
-    userId: string
-  ): Promise<DocumentType<FavoriteEntity>[]> {
-    return this.favoriteModel.find({ userId }).exec();
-  }
-
   public async addFavorite(
     userId: string,
     offerId: string
@@ -27,6 +21,19 @@ export class DefaultFavoriteService implements FavoriteService {
       { $setOnInsert: { userId, offerId } },
       { upsert: true }
     ).exec();
+  }
+
+  public async exists(
+    userId: string,
+    offerId: string
+  ): Promise<boolean> {
+    return await this.favoriteModel.exists({ userId, offerId }) !== null;
+  }
+
+  public async findByUserId(
+    userId: string
+  ): Promise<DocumentType<FavoriteEntity>[]> {
+    return this.favoriteModel.find({ userId }).exec();
   }
 
   public async removeByOfferId(offerId: string): Promise<void> {

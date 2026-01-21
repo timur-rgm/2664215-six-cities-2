@@ -171,7 +171,10 @@ export class DefaultOfferService implements OfferService {
     const offer = await this.offerModel
       .findById(offerId)
       .populate(['userId'])
+      .lean()
       .exec();
+
+    console.log({offer});
 
     if (!offer) {
       return null;
@@ -184,9 +187,10 @@ export class DefaultOfferService implements OfferService {
       };
     }
 
-    const favorites = await this.favoriteService.findByUserId(userId);
-    const favoritesIds = favorites.map((favorite) => String(favorite.offerId));
-    const isFavorite = favoritesIds.includes(offer.id);
+    const isFavorite = await this.favoriteService.exists(
+      userId,
+      offerId
+    );
 
     return {
       ...offer,
