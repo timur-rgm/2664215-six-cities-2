@@ -10,7 +10,7 @@ export class PrivateRouteMiddleware implements Middleware {
 
     if (!locals.tokenPayload) {
       throw new HttpError(
-        StatusCodes.UNAUTHORIZED,
+        StatusCodes.FORBIDDEN,
         'Unauthorized',
         'PrivateRouteMiddleware'
       );
