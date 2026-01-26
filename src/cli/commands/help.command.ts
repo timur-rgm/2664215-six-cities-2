@@ -11,7 +11,7 @@ export class HelpCommand implements Command {
         ${chalk.green('Программа для подготовки данных для REST API сервера.')}
         Пример: ${chalk.red('cli.js --<command> [--arguments]')}
         Команды:
-        ${chalk.red('--version')}:                    # выводит номер версии
+        ${chalk.red('--version')}:                     # выводит номер версии
         ${chalk.red('--help')}:                        # печатает этот текст
         ${chalk.red('--import <path>')}:               # импортирует данные из TSV
         ${chalk.red('--generate <n> <path> <url>')}:   # генерирует произвольное количество тестовых данных

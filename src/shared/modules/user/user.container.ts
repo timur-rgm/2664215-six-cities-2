@@ -1,7 +1,6 @@
 import { Container } from 'inversify';
-import { types } from '@typegoose/typegoose';
 
-import { Component } from '../../types/index.js';
+import { Component, type ModelType } from '../../types/index.js';
 import { DefaultUserService } from './default-user.service.js';
 import { UserController } from './user.controller.js';
 import { UserModel } from './user.entity.js';
@@ -23,7 +22,7 @@ export const createUserContainer = () => {
     .inSingletonScope();
 
   container
-    .bind<types.ModelType<UserEntity>>(Component.UserModel)
+    .bind<ModelType<UserEntity>>(Component.UserModel)
     .toConstantValue(UserModel);
 
   return container;

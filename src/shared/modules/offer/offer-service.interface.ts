@@ -3,22 +3,33 @@ import type { DocumentType } from '@typegoose/typegoose';
 import { City, type DocumentExists } from '../../types/index.js';
 import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
 import type { OfferEntity } from './offer.entity.js';
+import type { OfferEntityWithIsFavorite } from './types/offer-entity-with-favorite.type.js';
 
 export interface OfferService extends DocumentExists {
-  createOffer(offerData: CreateOfferDto): Promise<DocumentType<OfferEntity>>;
+  addToFavorites(
+    offerId: string,
+    userId: string
+  ): Promise<OfferEntityWithIsFavorite | null>;
+  createOffer(
+    offerData: CreateOfferDto,
+    userId: string
+  ): Promise<DocumentType<OfferEntity>>;
   deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null>;
   existsByTitle(title: string): Promise<boolean>;
   findAll(
     city?: City,
     isPremium?: boolean,
-    isFavorite?: boolean
-  ): Promise<DocumentType<OfferEntity>[]>;
-  findAllFavorites(): Promise<DocumentType<OfferEntity>[]>;
-  findById(offerId: string): Promise<DocumentType<OfferEntity> | null>;
-  setIsFavorite(
+    isFavorite?: boolean,
+    userId?: string
+  ): Promise<OfferEntity[]>;
+  findById(
     offerId: string,
-    isFavorite: boolean
-  ): Promise<DocumentType<OfferEntity> | null>;
+    userId?: string
+  ): Promise<OfferEntityWithIsFavorite | null>;
+  removeFromFavorites(
+    offerId: string,
+    userId: string
+  ): Promise<OfferEntityWithIsFavorite | null>;
   updateById(
     offerId: string,
     offerData: UpdateOfferDto

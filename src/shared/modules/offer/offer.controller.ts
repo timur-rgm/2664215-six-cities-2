@@ -6,6 +6,7 @@ import {
   DocumentExistsMiddleware,
   HttpError,
   HttpMethod,
+  PrivateRouteMiddleware,
   ValidateDtoMiddleware,
   ValidateMongoObjectIdMiddleware,
   type RequestWithBody,
@@ -61,6 +62,7 @@ export class OfferController extends BaseController {
       method: HttpMethod.Post,
       handler: this.create,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateDtoMiddleware(CreateOfferDto)
       ]
     });
@@ -69,6 +71,7 @@ export class OfferController extends BaseController {
       method: HttpMethod.Patch,
       handler: this.update,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateMongoObjectIdMiddleware('offerId'),
         new ValidateDtoMiddleware(UpdateOfferDto),
         new DocumentExistsMiddleware(
@@ -83,6 +86,7 @@ export class OfferController extends BaseController {
       method: HttpMethod.Delete,
       handler: this.delete,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateMongoObjectIdMiddleware('offerId'),
         new DocumentExistsMiddleware(
           this.offerService,
@@ -96,6 +100,7 @@ export class OfferController extends BaseController {
       method: HttpMethod.Put,
       handler: this.addToFavorites,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateMongoObjectIdMiddleware('offerId'),
         new DocumentExistsMiddleware(
           this.offerService,
@@ -109,6 +114,7 @@ export class OfferController extends BaseController {
       method: HttpMethod.Delete,
       handler: this.removeFromFavorites,
       middlewares: [
+        new PrivateRouteMiddleware(),
         new ValidateMongoObjectIdMiddleware('offerId'),
         new DocumentExistsMiddleware(
           this.offerService,
@@ -141,12 +147,14 @@ export class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
     const { query } = req;
+    const { locals } = res;
     const { city, isPremium, isFavorite } = query;
 
     const offers = await this.offerService.findAll(
       city,
       parseBooleanString(isPremium),
-      parseBooleanString(isFavorite)
+      parseBooleanString(isFavorite),
+      locals.tokenPayload?.userId
     );
     const responseData = fillRdo(OfferRdo, offers);
 
@@ -158,7 +166,11 @@ export class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
     const { params } = req;
-    const offer = await this.offerService.findById(params.offerId);
+    const { locals } = res;
+    const offer = await this.offerService.findById(
+      params.offerId,
+      locals.tokenPayload?.userId
+    );
     const responseData = fillRdo(OfferRdo, offer);
     this.ok(res, responseData);
   }
@@ -168,6 +180,7 @@ export class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
     const { body } = req;
+    const { locals } = res;
     const title = body.title;
 
     const offerExists = await this.offerService.existsByTitle(title);
@@ -175,12 +188,12 @@ export class OfferController extends BaseController {
     if (offerExists) {
       throw new HttpError(
         StatusCodes.UNPROCESSABLE_ENTITY,
-        `Offer with name ${title} already exists.`,
+        `Offer with name ${title} already exists`,
         'OfferController'
       );
     }
 
-    const newOffer = await this.offerService.createOffer(body);
+    const newOffer = await this.offerService.createOffer(body, locals.tokenPayload!.userId);
     const offerRdo = fillRdo(OfferRdo, newOffer);
     this.created(res, offerRdo);
   }
@@ -211,9 +224,10 @@ export class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
     const { params } = req;
-    const updatedOffer = await this.offerService.setIsFavorite(
+    const { locals } = res;
+    const updatedOffer = await this.offerService.addToFavorites(
       params.offerId,
-      true
+      locals.tokenPayload!.userId
     );
     const offerRdo = fillRdo(OfferRdo, updatedOffer);
     this.ok(res, offerRdo);
@@ -224,9 +238,10 @@ export class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
     const { params } = req;
-    const updatedOffer = await this.offerService.setIsFavorite(
+    const { locals } = res;
+    const updatedOffer = await this.offerService.removeFromFavorites(
       params.offerId,
-      false
+      locals.tokenPayload!.userId
     );
     const offerRdo = fillRdo(OfferRdo, updatedOffer);
     this.ok(res, offerRdo);

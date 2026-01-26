@@ -5,7 +5,6 @@ import {
   IsBoolean,
   IsEnum,
   IsInt,
-  IsMongoId,
   IsNumber,
   IsString,
   Max,
@@ -78,11 +77,6 @@ export class CreateOfferDto {
   })
   public isPremium: boolean;
 
-  @IsBoolean({
-    message: CreateOfferValidationMessage.isFavorite.type
-  })
-  public isFavorite: boolean;
-
   @IsEnum(HousingType, {
     message: CreateOfferValidationMessage.type.type
   })
@@ -132,11 +126,6 @@ export class CreateOfferDto {
     message: CreateOfferValidationMessage.amenities.itemType
   })
   public amenities: Amenity[];
-
-  @IsMongoId({
-    message: CreateOfferValidationMessage.userId.id
-  })
-  public userId: string;
 
   @ValidateNested()
   @Type(() => Coordinates)

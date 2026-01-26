@@ -25,9 +25,4 @@ export class CreateCommentDto {
     message: CreateCommentValidationMessage.offerId.format
   })
   public offerId: string;
-
-  @IsMongoId({
-    message: CreateCommentValidationMessage.userId.format
-  })
-  public userId: string;
 }

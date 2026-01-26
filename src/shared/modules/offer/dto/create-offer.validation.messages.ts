@@ -21,9 +21,6 @@ export const CreateOfferValidationMessage = {
   isPremium: {
     type: 'isPremium must be a boolean',
   },
-  isFavorite: {
-    type: 'isFavorite must be a boolean',
-  },
   rating: {
     type: 'rating must be a number with at most 1 decimal place',
     minValue: 'Minimum rating value must be 0',
