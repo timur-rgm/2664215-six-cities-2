@@ -8,6 +8,7 @@ import { Error } from 'mongoose';
 import { HttpError } from '../errors/index.js';
 import type { ExceptionFilter } from './exception-filter.interface.js';
 import type { Logger } from '../../logger/index.js';
+import { ApplicationError } from '../../../../rest/types/index.js';
 
 @injectable()
 export class AppExceptionFilter implements ExceptionFilter {
@@ -31,7 +32,10 @@ export class AppExceptionFilter implements ExceptionFilter {
 
     res
       .status(error.httpStatusCode)
-      .json(createErrorObject(error.message));
+      .json(createErrorObject(
+        ApplicationError.CommonError,
+        error.message
+      ));
   }
 
   private handleOtherError(
@@ -44,7 +48,10 @@ export class AppExceptionFilter implements ExceptionFilter {
 
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .json(createErrorObject(error.message));
+      .json(createErrorObject(
+        ApplicationError.CommonError,
+        error.message
+      ));
   }
 
   public catch(error: Error, req: Request, res: Response, next: NextFunction) {
