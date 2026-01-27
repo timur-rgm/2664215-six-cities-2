@@ -17,11 +17,11 @@ export class RestApplication {
   private readonly server: express.Express;
 
   constructor(
+    @inject(Component.AppExceptionFilter)
+    private readonly appExceptionFilter: ExceptionFilter,
+
     @inject(Component.AuthExceptionFilter)
     private readonly authExceptionFilter: ExceptionFilter,
-
-    @inject(Component.ExceptionFilter)
-    private readonly appExceptionFilter: ExceptionFilter,
 
     @inject(Component.Config)
     private readonly config: Config<RestSchema>,
@@ -32,6 +32,9 @@ export class RestApplication {
     @inject(Component.DatabaseClient)
     private readonly databaseClient: DatabaseClient,
 
+    @inject(Component.HttpExceptionFilter)
+    private readonly httpExceptionFilter: ExceptionFilter,
+
     @inject(Component.OfferController)
     private readonly offersController: Controller,
 
@@ -40,6 +43,9 @@ export class RestApplication {
 
     @inject(Component.UserController)
     private readonly userController: Controller,
+
+    @inject(Component.ValidationExceptionFilter)
+    private readonly validationExceptionFilter: ExceptionFilter,
   ) {
     this.server = express();
   }
@@ -76,6 +82,8 @@ export class RestApplication {
 
   private initExceptionFilters() {
     this.server.use(this.authExceptionFilter.catch);
+    this.server.use(this.validationExceptionFilter.catch);
+    this.server.use(this.httpExceptionFilter.catch);
     this.server.use(this.appExceptionFilter.catch);
   }
 

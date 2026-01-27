@@ -1,4 +1,5 @@
 export const Component = {
+  AppExceptionFilter: Symbol.for('AppExceptionFilter'),
   AuthService: Symbol.for('AuthService'),
   AuthExceptionFilter: Symbol.for('AuthExceptionFilter'),
   CommentController: Symbol.for('CommentController'),
@@ -6,9 +7,9 @@ export const Component = {
   CommentService: Symbol.for('CommentService'),
   Config: Symbol.for('Config'),
   DatabaseClient: Symbol.for('DatabaseClient'),
-  ExceptionFilter: Symbol.for('ExceptionFilter'),
   FavoriteModel: Symbol.for('FavoriteModel'),
   FavoriteService: Symbol.for('FavoriteService'),
+  HttpExceptionFilter: Symbol.for('HttpExceptionFilter'),
   Logger: Symbol.for('Logger'),
   OfferController: Symbol.for('OfferController'),
   OfferModel: Symbol.for('OfferModel'),
@@ -17,4 +18,5 @@ export const Component = {
   UserController: Symbol.for('UserController'),
   UserModel: Symbol.for('UserModel'),
   UserService: Symbol.for('UserService'),
+  ValidationExceptionFilter: Symbol.for('ValidationExceptionFilter'),
 } as const;
