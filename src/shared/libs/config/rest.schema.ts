@@ -15,6 +15,7 @@ export type RestSchema = {
   JWT_SECRET: string;
   PORT: number;
   SALT: string;
+  STATIC_DIRECTORY_PATH: string;
   UPLOAD_DIRECTORY: string;
 }
 
@@ -84,6 +85,12 @@ export const restConfigSchema = convict<RestSchema>({
     format: String,
     env: 'SALT',
     default: null
+  },
+  STATIC_DIRECTORY_PATH: {
+    doc: 'Directory for static files',
+    format: String,
+    env: 'STATIC_DIRECTORY_PATH',
+    default: 'static'
   },
   UPLOAD_DIRECTORY: {
     doc: 'Directory for upload files',

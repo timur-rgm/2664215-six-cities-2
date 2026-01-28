@@ -69,6 +69,7 @@ export class RestApplication {
 
   private initMiddleware() {
     this.server.use(express.json());
+    this.server.use('/static', express.static(this.config.get('STATIC_DIRECTORY_PATH')));
     this.server.use('/upload', express.static(this.config.get('UPLOAD_DIRECTORY')));
     const parseTokenMiddleware = new ParseTokenMiddleware(this.config.get('JWT_SECRET'));
     this.server.use(parseTokenMiddleware.execute);
