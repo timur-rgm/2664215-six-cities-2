@@ -7,6 +7,7 @@ import {
 } from '../shared/libs/rest/index.js';
 import { Component } from '../shared/types/index.js';
 import { MongoDatabaseClient } from '../shared/libs/database-client/index.js';
+import { PathTransformer } from '../shared/libs/rest/transform/path-transformer.js';
 import { PinoLogger } from '../shared/libs/logger/index.js';
 import { RestConfig } from '../shared/libs/config/index.js';
 import { RestApplication } from './rest.application.js';
@@ -34,18 +35,23 @@ export const createRestApplicationContainer = () => {
     .inSingletonScope();
 
   container
+    .bind<ExceptionFilter>(Component.HttpExceptionFilter)
+    .to(HttpErrorExceptionFilter)
+    .inSingletonScope();
+
+  container
     .bind<Logger>(Component.Logger)
     .to(PinoLogger)
     .inSingletonScope();
 
   container
-    .bind<RestApplication>(Component.RestApplication)
-    .to(RestApplication)
+    .bind<PathTransformer>(Component.PathTransformer)
+    .to(PathTransformer)
     .inSingletonScope();
 
   container
-    .bind<ExceptionFilter>(Component.HttpExceptionFilter)
-    .to(HttpErrorExceptionFilter)
+    .bind<RestApplication>(Component.RestApplication)
+    .to(RestApplication)
     .inSingletonScope();
 
   container

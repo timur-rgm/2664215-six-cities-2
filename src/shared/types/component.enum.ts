@@ -14,6 +14,7 @@ export const Component = {
   OfferController: Symbol.for('OfferController'),
   OfferModel: Symbol.for('OfferModel'),
   OfferService: Symbol.for('OfferService'),
+  PathTransformer: Symbol.for('PathTransformer'),
   RestApplication: Symbol.for('RestApplication'),
   UserController: Symbol.for('UserController'),
   UserModel: Symbol.for('UserModel'),
