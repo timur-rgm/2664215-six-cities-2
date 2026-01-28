@@ -8,6 +8,7 @@ import {
   type Controller,
   type ExceptionFilter
 } from '../shared/libs/rest/index.js';
+import { STATIC_DIRECTORY_ROUTE, UPLOAD_ROUTE } from './rest.constants.js';
 import type { Config, RestSchema } from '../shared/libs/config/index.js';
 import type { DatabaseClient } from '../shared/libs/database-client/index.js';
 import type { Logger } from '../shared/libs/logger/index.js';
@@ -69,8 +70,14 @@ export class RestApplication {
 
   private initMiddleware() {
     this.server.use(express.json());
-    this.server.use('/static', express.static(this.config.get('STATIC_DIRECTORY_PATH')));
-    this.server.use('/upload', express.static(this.config.get('UPLOAD_DIRECTORY')));
+    this.server.use(
+      STATIC_DIRECTORY_ROUTE,
+      express.static(this.config.get('STATIC_DIRECTORY_PATH'))
+    );
+    this.server.use(
+      UPLOAD_ROUTE,
+      express.static(this.config.get('UPLOAD_DIRECTORY'))
+    );
     const parseTokenMiddleware = new ParseTokenMiddleware(this.config.get('JWT_SECRET'));
     this.server.use(parseTokenMiddleware.execute);
   }
