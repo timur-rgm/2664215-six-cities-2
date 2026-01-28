@@ -2,7 +2,7 @@ import express from 'express';
 import { inject, injectable } from 'inversify';
 
 import { Component } from '../shared/types/index.js';
-import { getMongoURI } from '../shared/helpers/index.js';
+import { getFullServerPath, getMongoURI } from '../shared/helpers/index.js';
 import {
   ParseTokenMiddleware,
   type Controller,
@@ -107,6 +107,9 @@ export class RestApplication {
 
     this.logger.info('Try to init server…');
     this.initServer();
-    this.logger.info(`Server started on http://localhost:${this.config.get('PORT')}`);
+    this.logger.info(getFullServerPath(
+      this.config.get('HOST'),
+      this.config.get('PORT')
+    ));
   }
 }
