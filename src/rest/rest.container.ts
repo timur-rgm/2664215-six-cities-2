@@ -7,7 +7,7 @@ import {
 } from '../shared/libs/rest/index.js';
 import { Component } from '../shared/types/index.js';
 import { MongoDatabaseClient } from '../shared/libs/database-client/index.js';
-import { PathTransformer } from '../shared/libs/rest/transform/path-transformer.js';
+import { PathTransformer } from '../shared/libs/rest/transform/index.js';
 import { PinoLogger } from '../shared/libs/logger/index.js';
 import { RestConfig } from '../shared/libs/config/index.js';
 import { RestApplication } from './rest.application.js';
