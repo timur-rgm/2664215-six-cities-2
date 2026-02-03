@@ -8,6 +8,7 @@ import {
   HttpMethod,
   PrivateRouteMiddleware,
   UploadFileMiddleware,
+  UploadFilesMiddleware,
   ValidateDtoMiddleware,
   ValidateMongoObjectIdMiddleware,
   type RequestWithParams,
@@ -19,7 +20,8 @@ import { City, Component } from '../../types/index.js';
 import { CommentRdo } from '../comment/rdo/index.js';
 import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
 import { fillRdo, parseBooleanString } from '../../helpers/index.js';
-import { OfferRdo, UploadPreviewRdo } from './rdo/index.js';
+import { OFFER_IMAGES_COUNT } from './offer.constant.js';
+import { OfferRdo, UploadImagesRdo, UploadPreviewRdo } from './rdo/index.js';
 import { StatusCodes } from 'http-status-codes';
 import type { CommentService } from '../comment/index.js';
 import type { Config, RestSchema } from '../../libs/config/index.js';
@@ -171,6 +173,11 @@ export class OfferController extends BaseController {
           'Offer',
           'offerId'
         ),
+        new UploadFilesMiddleware(
+          this.config.get('UPLOAD_DIRECTORY'),
+          'images',
+          OFFER_IMAGES_COUNT
+        )
       ]
     });
   }
@@ -300,6 +307,15 @@ export class OfferController extends BaseController {
     res: Response
   ): Promise<void> {
     const { params, file } = req;
+
+    if (!file) {
+      throw new HttpError(
+        StatusCodes.UNPROCESSABLE_ENTITY,
+        'Preview image is required',
+        'OfferController'
+      );
+    }
+
     const updatedOffer = await this.offerService.updateById(
       params.offerId,
       { previewImage: file?.filename }
@@ -312,6 +328,23 @@ export class OfferController extends BaseController {
     req: RequestWithParams<{ offerId: string }>,
     res: Response
   ): Promise<void> {
+    const { params } = req;
+    const files = Array.isArray(req.files) ? req.files : undefined;
 
+    if (!files || files.length !== OFFER_IMAGES_COUNT) {
+      throw new HttpError(
+        StatusCodes.UNPROCESSABLE_ENTITY,
+        'Images must contain exactly 6 items',
+        'OfferController'
+      );
+    }
+
+    const images = files?.map((file) => file.filename);
+    const updatedOffer = await this.offerService.updateById(
+      params.offerId,
+      { images }
+    );
+    const imagesRdo = fillRdo(UploadImagesRdo, updatedOffer);
+    this.created(res, imagesRdo);
   }
 }
