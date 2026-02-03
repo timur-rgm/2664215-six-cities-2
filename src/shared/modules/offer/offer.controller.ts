@@ -159,6 +159,20 @@ export class OfferController extends BaseController {
         )
       ]
     });
+    this.addRoute({
+      path: '/:offerId/images',
+      method: HttpMethod.Post,
+      handler: this.uploadImages,
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateMongoObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(
+          this.offerService,
+          'Offer',
+          'offerId'
+        ),
+      ]
+    });
   }
 
   public async index(
@@ -292,5 +306,12 @@ export class OfferController extends BaseController {
     );
     const previewRdo = fillRdo(UploadPreviewRdo, updatedOffer);
     this.created(res, previewRdo);
+  }
+
+  public async uploadImages(
+    req: RequestWithParams<{ offerId: string }>,
+    res: Response
+  ): Promise<void> {
+
   }
 }
