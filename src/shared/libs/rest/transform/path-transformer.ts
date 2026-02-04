@@ -8,7 +8,7 @@ import type { Config, RestSchema } from '../../config/index.js';
 import type { Logger } from '../../logger/index.js';
 
 const isObject = (value: unknown): value is Record<string, object> =>
-  typeof value === 'object' && value !== null;
+  typeof value === 'object' && value !== null && !Array.isArray(value);
 
 @injectable()
 export class PathTransformer {
@@ -30,6 +30,16 @@ export class PathTransformer {
     return STATIC_RESOURCE_FIELDS.includes(property);
   }
 
+  private toStaticPath(value: string): string {
+    const staticPath = STATIC_DIRECTORY_ROUTE;
+    const uploadPath = UPLOAD_ROUTE;
+    const serverHost = this.config.get('HOST');
+    const serverPort = this.config.get('PORT');
+    const rootPath = this.hasDefaultImage(value) ? staticPath : uploadPath;
+
+    return `${getFullServerPath(serverHost, serverPort)}${rootPath}/${value}`;
+  }
+
   public execute(data: Record<string, unknown>): Record<string, unknown> {
     const stack = [data];
 
@@ -45,16 +55,14 @@ export class PathTransformer {
             continue;
           }
 
-          if (this.isStaticProperty(key) && typeof value === 'string') {
-            const staticPath = STATIC_DIRECTORY_ROUTE;
-            const uploadPath = UPLOAD_ROUTE;
-            const serverHost = this.config.get('HOST');
-            const serverPort = this.config.get('PORT');
-
-            const rootPath = this.hasDefaultImage(value) ? staticPath : uploadPath;
-
-            current[key] =
-              `${getFullServerPath(serverHost, serverPort)}${rootPath}/${value}`;
+          if (this.isStaticProperty(key)) {
+            if (typeof value === 'string') {
+              current[key] = this.toStaticPath(value);
+            } else if (Array.isArray(value)) {
+              current[key] = value
+                .filter((item) => typeof item === 'string')
+                .map((item) => this.toStaticPath(item));
+            }
           }
         }
       }
