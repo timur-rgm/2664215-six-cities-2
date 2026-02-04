@@ -183,6 +183,7 @@ export class DefaultOfferService implements OfferService {
     if (!userId) {
       return {
         ...offer,
+        id: offer._id.toString(),
         isFavorite: false
       };
     }
@@ -194,6 +195,7 @@ export class DefaultOfferService implements OfferService {
 
     return {
       ...offer,
+      id: offer._id.toString(),
       isFavorite
     };
   }

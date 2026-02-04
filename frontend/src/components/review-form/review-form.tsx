@@ -5,11 +5,12 @@ import type { NewComment } from '../../types/types';
 import { STARS_COUNT, MIN_COMMENT_LENGTH, MAX_COMMENT_LENGTH, SubmitStatus } from '../../const';
 
 type ReviewFormProps = {
-  onSubmit: (formData: NewComment) => void;
+  offerId: string;
+  onSubmit: (formData: NewComment & { offerId: string }) => void;
   submitStatus: SubmitStatus;
 }
 
-const ReviewForm = ({ onSubmit, submitStatus }: ReviewFormProps) => {
+const ReviewForm = ({ onSubmit, submitStatus, offerId }: ReviewFormProps) => {
   const [text, setText] = useState<string>('');
   const [rating, setRating] = useState<number>(0);
   const isSubmiting = submitStatus === SubmitStatus.Pending;
@@ -26,6 +27,7 @@ const ReviewForm = ({ onSubmit, submitStatus }: ReviewFormProps) => {
     e.preventDefault();
 
     onSubmit({
+      offerId,
       comment: text,
       rating
     });

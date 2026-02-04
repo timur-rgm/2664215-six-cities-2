@@ -92,8 +92,8 @@ const Property = (): JSX.Element | null => {
     dispatch(deleteOffer(id));
   };
 
-  const handleFormSubmit = (formData: NewComment) => {
-    dispatch(postComment({ id, ...formData }));
+  const handleFormSubmit = (formData: NewComment & { offerId: string }) => {
+    dispatch(postComment(formData));
   };
 
   return (
@@ -203,6 +203,7 @@ const Property = (): JSX.Element | null => {
                 isAuthorized={isAuthorized}
                 onSubmit={handleFormSubmit}
                 submitStatus={commentStatus}
+                offerId={offer.id}
               />
             </div>
           </div>

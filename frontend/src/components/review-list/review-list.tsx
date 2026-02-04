@@ -7,11 +7,12 @@ import Review from '../review/review';
 type ReviewListProps = {
     reviews: Comment[];
     isAuthorized: boolean;
-    onSubmit: (formData: NewComment) => void;
+    onSubmit: (formData: NewComment & { offerId: string }) => void;
     submitStatus: SubmitStatus;
+    offerId: string;
 }
 
-const ReviewList = ({ reviews, isAuthorized, onSubmit, submitStatus }: ReviewListProps) => (
+const ReviewList = ({ reviews, isAuthorized, onSubmit, submitStatus, offerId }: ReviewListProps) => (
   <section className="property__reviews reviews">
     {reviews.length > 0 && (
       <>
@@ -24,7 +25,7 @@ const ReviewList = ({ reviews, isAuthorized, onSubmit, submitStatus }: ReviewLis
           ))}
         </ul>
       </>)}
-    {isAuthorized && <ReviewForm onSubmit={onSubmit} submitStatus={submitStatus} />}
+    {isAuthorized && <ReviewForm offerId={offerId} onSubmit={onSubmit} submitStatus={submitStatus} />}
   </section>
 );
 

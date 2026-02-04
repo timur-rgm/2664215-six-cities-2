@@ -18,7 +18,7 @@ enum FormFieldName {
   maxAdults = 'maxAdults',
   price = 'price',
   good = 'good-',
-  image = 'image'
+  images = 'images'
 }
 
 const getGoods = (
@@ -45,17 +45,10 @@ const getCity = (cityName: FormDataEntryValue | null): City => {
   return { name: CITIES[0], location: CityLocation[CITIES[0]] };
 };
 
-const getImages = (
-  entries: IterableIterator<[string, FormDataEntryValue]>
-): string[] => {
-  const enteredImages: string[] = [];
-  for (const entry of entries) {
-    if (entry[0].startsWith(FormFieldName.image) && typeof entry[1] === 'string') {
-      enteredImages.push(entry[1]);
-    }
-  }
-  return enteredImages;
-};
+const getImages = (formData: FormData): File[] =>
+  formData
+    .getAll(FormFieldName.images)
+    .filter((item): item is File => item instanceof File && item.size > 0);
 
 type OfferFormProps<T> = {
   offer: T;
@@ -99,12 +92,16 @@ const OfferForm = <T extends Offer | NewOffer>({
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
+    const previewImage = formData.get(FormFieldName.previewImage);
+    const previewImageFile =
+      previewImage instanceof File && previewImage.size > 0 ? previewImage : null;
     const data = {
       ...offer,
       title: formData.get(FormFieldName.title),
       description: formData.get(FormFieldName.description),
       city: getCity(formData.get(FormFieldName.cityName)),
-      previewImage: formData.get(FormFieldName.previewImage),
+      previewImage: offer.previewImage,
+      previewImageFile,
       isPremium: Boolean(formData.get(FormFieldName.isPremium)),
       type: formData.get(FormFieldName.type),
       bedrooms: Number(formData.get(FormFieldName.bedrooms)),
@@ -112,7 +109,8 @@ const OfferForm = <T extends Offer | NewOffer>({
       price: Number(formData.get(FormFieldName.price)),
       goods: getGoods(formData.entries()),
       location: chosenLocation,
-      images: getImages(formData.entries()),
+      images: offer.images,
+      imagesFiles: getImages(formData)
     };
 
     onSubmit(data);
@@ -171,28 +169,24 @@ const OfferForm = <T extends Offer | NewOffer>({
         </label>
         <input
           className="form__input offer-form__text-input"
-          type="url"
-          placeholder="Preview image"
+          type="file"
+          accept="image/*"
           name={FormFieldName.previewImage}
           id="previewImage"
-          required
-          defaultValue={previewImage}
         />
       </div>
       <fieldset className="images-fieldset">
         {images.map((image, index) => (
           <div key={image} className="form__input-wrapper">
             <label htmlFor={`image=${index}`} className="offer-form__label">
-          Offer Image #{index + 1}
+              Offer Image #{index + 1}
             </label>
             <input
               className="form__input offer-form__text-input"
-              type="url"
-              placeholder="Offer image"
-              name={`${FormFieldName.image}-${index}`}
+              type="file"
+              accept="image/*"
+              name={FormFieldName.images}
               id={`image-${index}`}
-              required
-              defaultValue={image}
             />
           </div>
         ))}

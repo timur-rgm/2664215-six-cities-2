@@ -46,6 +46,8 @@ export type Offer = {
   host: User;
   images: string[];
   maxAdults: number;
+  previewImageFile?: File | null;
+  imagesFiles?: File[];
 };
 
 export type NewOffer = {
@@ -61,12 +63,13 @@ export type NewOffer = {
   goods: string[];
   location: Location;
   images: string[];
+  previewImageFile?: File | null;
+  imagesFiles?: File[];
 };
 
 export type NewComment = Pick<Comment, 'comment' | 'rating'>;
 export type UserAuth = Pick<User, 'email'> & { password: string };
-export type CommentAuth = NewComment &
-  Pick<Offer, 'id'>;
+export type CommentAuth = NewComment & { offerId: string };
 export type FavoriteAuth = Offer['id'];
 export type UserRegister = Omit<User, 'avatarUrl'> &
   Pick<UserAuth, 'password'> & { avatar?: File };
