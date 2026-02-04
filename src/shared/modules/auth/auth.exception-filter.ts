@@ -6,7 +6,6 @@ import { Component } from '../../types/index.js';
 import type { ExceptionFilter } from '../../libs/rest/index.js';
 import type { Logger } from '../../libs/logger/index.js';
 
-
 @injectable()
 export class AuthExceptionFilter implements ExceptionFilter {
   constructor(

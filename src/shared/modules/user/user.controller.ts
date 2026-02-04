@@ -12,11 +12,12 @@ import {
   ValidateMongoObjectIdMiddleware,
   UploadFileMiddleware,
   type RequestWithBody,
+  type RequestWithParams,
 } from '../../libs/rest/index.js';
 import { Component } from '../../types/index.js';
 import { CreateUserDto, LoginUserDto } from './dto/index.js';
 import { fillRdo } from '../../helpers/index.js';
-import { LoggedUserRdo, UserRdo } from './rdo/index.js';
+import { LoggedUserRdo, UploadUserAvatarRdo, UserRdo } from './rdo/index.js';
 import type { Config, RestSchema } from '../../libs/config/index.js';
 import type { Logger } from '../../libs/logger/index.js';
 import type { UserService } from './user-service.interface.js';
@@ -56,7 +57,7 @@ export class UserController extends BaseController {
       ]
     });
     this.addRoute({
-      path: 'login',
+      path: '/login',
       method: HttpMethod.Get,
       handler: this.checkAuth,
       middlewares: [
@@ -72,7 +73,7 @@ export class UserController extends BaseController {
         new ValidateMongoObjectIdMiddleware('userId'),
         new UploadFileMiddleware(
           this.config.get('UPLOAD_DIRECTORY'),
-          'avatar'
+          'avatarUrl'
         )
       ]
     });
@@ -107,11 +108,9 @@ export class UserController extends BaseController {
   ): Promise<void> {
     const user = await this.authService.verify(req.body);
     const token = await this.authService.authenticate(user);
-    const responseData = fillRdo(LoggedUserRdo, {
-      email: user.email,
-      token
-    });
-    this.ok(res, responseData);
+    const responseData = fillRdo(LoggedUserRdo, user);
+    const responseDataWithToken = Object.assign(responseData, { token });
+    this.ok(res, responseDataWithToken);
   }
 
   public async checkAuth(
@@ -135,11 +134,24 @@ export class UserController extends BaseController {
   }
 
   public async uploadAvatar(
-    req: Request,
+    req: RequestWithParams<{ userId: string }>,
     res: Response
   ): Promise<void> {
-    this.created(res, {
-      filepath: req.file?.path
-    });
+    const { params, file } = req;
+
+    if (!file) {
+      throw new HttpError(
+        StatusCodes.UNPROCESSABLE_ENTITY,
+        'User avatar is required',
+        'UserController'
+      );
+    }
+
+    const updatedUser = await this.userService.updateUserById(
+      params.userId,
+      { avatarUrl: file?.filename }
+    );
+    const avatarRdo = fillRdo(UploadUserAvatarRdo, updatedUser);
+    this.created(res, avatarRdo);
   }
 }

@@ -10,14 +10,6 @@ export const CreateOfferValidationMessage = {
   city: {
     type: 'city must be one of the allowed cities',
   },
-  previewImage: {
-    type: 'previewImage must be a string',
-  },
-  images: {
-    type: 'images must be an array',
-    count: 'images must contain exactly 6 items',
-    itemType: 'each image must be a string',
-  },
   isPremium: {
     type: 'isPremium must be a boolean',
   },

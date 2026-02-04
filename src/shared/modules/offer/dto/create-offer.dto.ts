@@ -1,12 +1,10 @@
 import {
-  ArrayMaxSize,
   ArrayMinSize,
   IsArray,
   IsBoolean,
   IsEnum,
   IsInt,
   IsNumber,
-  IsString,
   Max,
   MaxLength,
   Min,
@@ -51,26 +49,6 @@ export class CreateOfferDto {
     message: CreateOfferValidationMessage.city.type
   })
   public city: City;
-
-  @IsString({
-    message: CreateOfferValidationMessage.previewImage.type
-  })
-  public previewImage: string;
-
-  @IsArray({
-    message: CreateOfferValidationMessage.images.type
-  })
-  @ArrayMinSize(6, {
-    message: CreateOfferValidationMessage.images.count
-  })
-  @ArrayMaxSize(6, {
-    message: CreateOfferValidationMessage.images.count
-  })
-  @IsString({
-    each: true,
-    message: CreateOfferValidationMessage.images.itemType
-  })
-  public images: string[];
 
   @IsBoolean({
     message: CreateOfferValidationMessage.isPremium.type

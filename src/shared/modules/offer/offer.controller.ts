@@ -7,20 +7,24 @@ import {
   HttpError,
   HttpMethod,
   PrivateRouteMiddleware,
+  UploadFileMiddleware,
+  UploadFilesMiddleware,
   ValidateDtoMiddleware,
   ValidateMongoObjectIdMiddleware,
+  type RequestWithParams,
   type RequestWithBody,
   type RequestWithBodyAndParams,
   type RequestWithQuery,
-  type RequestWithParams,
 } from '../../libs/rest/index.js';
 import { City, Component } from '../../types/index.js';
 import { CommentRdo } from '../comment/rdo/index.js';
 import { CreateOfferDto, UpdateOfferDto } from './dto/index.js';
 import { fillRdo, parseBooleanString } from '../../helpers/index.js';
-import { OfferRdo } from './rdo/index.js';
+import { OFFER_IMAGES_COUNT } from './offer.constant.js';
+import { OfferRdo, UploadImagesRdo, UploadPreviewRdo } from './rdo/index.js';
 import { StatusCodes } from 'http-status-codes';
 import type { CommentService } from '../comment/index.js';
+import type { Config, RestSchema } from '../../libs/config/index.js';
 import type { Logger } from '../../libs/logger/index.js';
 import type { OfferService } from './offer-service.interface.js';
 
@@ -29,6 +33,9 @@ export class OfferController extends BaseController {
   constructor(
     @inject(Component.CommentService)
     private readonly commentService: CommentService,
+
+    @inject(Component.Config)
+    private readonly config: Config<RestSchema>,
 
     @inject(Component.Logger)
     protected readonly logger: Logger,
@@ -134,6 +141,43 @@ export class OfferController extends BaseController {
           'Offer',
           'offerId'
         ),
+      ]
+    });
+    this.addRoute({
+      path: '/:offerId/preview',
+      method: HttpMethod.Post,
+      handler: this.uploadPreview,
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateMongoObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(
+          this.offerService,
+          'Offer',
+          'offerId'
+        ),
+        new UploadFileMiddleware(
+          this.config.get('UPLOAD_DIRECTORY'),
+          'preview'
+        )
+      ]
+    });
+    this.addRoute({
+      path: '/:offerId/images',
+      method: HttpMethod.Post,
+      handler: this.uploadImages,
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateMongoObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(
+          this.offerService,
+          'Offer',
+          'offerId'
+        ),
+        new UploadFilesMiddleware(
+          this.config.get('UPLOAD_DIRECTORY'),
+          'images',
+          OFFER_IMAGES_COUNT
+        )
       ]
     });
   }
@@ -256,5 +300,51 @@ export class OfferController extends BaseController {
     const comments = await this.commentService.findCommentByOfferId(offerId);
     const commentsRdo = fillRdo(CommentRdo, comments);
     this.ok(res, commentsRdo);
+  }
+
+  public async uploadPreview(
+    req: RequestWithParams<{ offerId: string }>,
+    res: Response
+  ): Promise<void> {
+    const { params, file } = req;
+
+    if (!file) {
+      throw new HttpError(
+        StatusCodes.UNPROCESSABLE_ENTITY,
+        'Preview image is required',
+        'OfferController'
+      );
+    }
+
+    const updatedOffer = await this.offerService.updateById(
+      params.offerId,
+      { previewImage: file?.filename }
+    );
+    const previewRdo = fillRdo(UploadPreviewRdo, updatedOffer);
+    this.created(res, previewRdo);
+  }
+
+  public async uploadImages(
+    req: RequestWithParams<{ offerId: string }>,
+    res: Response
+  ): Promise<void> {
+    const { params } = req;
+    const files = Array.isArray(req.files) ? req.files : undefined;
+
+    if (!files || files.length !== OFFER_IMAGES_COUNT) {
+      throw new HttpError(
+        StatusCodes.UNPROCESSABLE_ENTITY,
+        'Images must contain exactly 6 items',
+        'OfferController'
+      );
+    }
+
+    const images = files?.map((file) => file.filename);
+    const updatedOffer = await this.offerService.updateById(
+      params.offerId,
+      { images }
+    );
+    const imagesRdo = fillRdo(UploadImagesRdo, updatedOffer);
+    this.created(res, imagesRdo);
   }
 }

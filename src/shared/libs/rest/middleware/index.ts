@@ -5,3 +5,4 @@ export * from './private-route.middleware.js';
 export * from './validate-dto.middleware.js';
 export * from './validate-mongo-object-id.middleware.js';
 export * from './upload-file.middleware.js';
+export * from './upload-files.middleware.js';

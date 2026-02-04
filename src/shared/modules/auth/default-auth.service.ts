@@ -1,6 +1,7 @@
 import * as crypto from 'node:crypto';
 import { inject, injectable } from 'inversify';
 import { SignJWT } from 'jose';
+import type { DocumentType } from '@typegoose/typegoose';
 
 import { Component, type TokenPayload } from '../../types/index.js';
 import type { AuthService } from './auth-service.interface.js';
@@ -46,7 +47,7 @@ export class DefaultAuthService implements AuthService {
       .sign(secretKey);
   }
 
-  public async verify(dto: LoginUserDto): Promise<UserEntity> {
+  public async verify(dto: LoginUserDto): Promise<DocumentType<UserEntity>> {
     const user = await this.userService.findByEmail(dto.email);
 
     if (!user) {

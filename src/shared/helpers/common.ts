@@ -1,5 +1,7 @@
-import { plainToInstance } from 'class-transformer';
-import type { ClassConstructor } from 'class-transformer';
+import { plainToInstance, type ClassConstructor } from 'class-transformer';
+import { ValidationError } from 'class-validator';
+
+import { ApplicationError, type ValidationErrorField } from '../../rest/types/index.js';
 
 export const getErrorMessage = (error: unknown): string | null => {
   if (error instanceof Error) {
@@ -16,9 +18,11 @@ export const getErrorMessage = (error: unknown): string | null => {
 export const fillRdo = <T, V>(rdoClass: ClassConstructor<T>, data: V) =>
   plainToInstance(rdoClass, data, { excludeExtraneousValues: true });
 
-export const createErrorObject = (message: string) => ({
-  error: message
-});
+export const createErrorObject = (
+  errorType: ApplicationError,
+  error: string,
+  details: ValidationErrorField[] = []
+) => ({ errorType, error, details });
 
 export const parseBooleanString = (value?: string): boolean | undefined => {
   switch (value) {
@@ -31,3 +35,13 @@ export const parseBooleanString = (value?: string): boolean | undefined => {
   }
 };
 
+export const reduceValidationErrors = (
+  errors: ValidationError[]
+): ValidationErrorField[] =>
+  errors.map(({ property, value, constraints}) => ({
+    property,
+    value,
+    messages : constraints ? Object.values(constraints) : []
+  }));
+
+export const getFullServerPath = (host: string, port: number) => `http://${host}:${port}`;

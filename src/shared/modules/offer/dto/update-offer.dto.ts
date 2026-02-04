@@ -1,11 +1,18 @@
 import {
   ArrayMaxSize,
   ArrayMinSize,
-  IsArray, IsBoolean,
-  IsEnum, IsInt, IsNumber,
-  IsOptional, IsString, Max,
-  MaxLength, Min,
-  MinLength, ValidateNested
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+  MinLength,
+  ValidateNested
 } from 'class-validator';
 import { Type } from 'class-transformer';
 

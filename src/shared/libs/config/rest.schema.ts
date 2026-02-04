@@ -9,11 +9,13 @@ export type RestSchema = {
   DB_HOST: string;
   DB_PORT: string;
   DB_NAME: string;
+  HOST: string;
   JWT_ALGORITHM: string;
   JWT_EXPIRED: string;
   JWT_SECRET: string;
   PORT: number;
   SALT: string;
+  STATIC_DIRECTORY_PATH: string;
   UPLOAD_DIRECTORY: string;
 }
 
@@ -48,6 +50,12 @@ export const restConfigSchema = convict<RestSchema>({
     env: 'DB_NAME',
     default: 'six-cities'
   },
+  HOST: {
+    doc: 'Host where started service',
+    format: String,
+    env: 'HOST',
+    default: 'localhost'
+  },
   JWT_ALGORITHM: {
     doc: 'Algorithm for JWT',
     format: String,
@@ -77,6 +85,12 @@ export const restConfigSchema = convict<RestSchema>({
     format: String,
     env: 'SALT',
     default: null
+  },
+  STATIC_DIRECTORY_PATH: {
+    doc: 'Directory for static files',
+    format: String,
+    env: 'STATIC_DIRECTORY_PATH',
+    default: 'static'
   },
   UPLOAD_DIRECTORY: {
     doc: 'Directory for upload files',

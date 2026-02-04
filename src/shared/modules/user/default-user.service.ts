@@ -3,6 +3,7 @@ import type { DocumentType } from '@typegoose/typegoose';
 
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from './dto/index.js';
 import { Component, type ModelType } from '../../types/index.js';
+import { DEFAULT_AVATAR_FILE_NAME } from './user.constants.js';
 import { NotImplementedError } from '../../libs/rest/index.js';
 import { UserEntity } from './user.entity.js';
 import type { Logger } from '../../libs/logger/index.js';
@@ -22,7 +23,10 @@ export class DefaultUserService implements UserService {
     dto: CreateUserDto,
     salt: string
   ): Promise<DocumentType<UserEntity>> {
-    const user = new UserEntity(dto);
+    const user = new UserEntity({
+      ...dto,
+      avatarUrl: DEFAULT_AVATAR_FILE_NAME
+    });
     user.setPassword(dto.password, salt);
     const result = await this.userModel.create(user);
     this.logger.info(`New user created: ${user.email}`);
