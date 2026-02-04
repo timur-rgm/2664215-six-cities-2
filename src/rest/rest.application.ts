@@ -1,3 +1,4 @@
+import cors from 'cors';
 import express from 'express';
 import { inject, injectable } from 'inversify';
 
@@ -80,6 +81,7 @@ export class RestApplication {
     );
     const parseTokenMiddleware = new ParseTokenMiddleware(this.config.get('JWT_SECRET'));
     this.server.use(parseTokenMiddleware.execute);
+    this.server.use(cors());
   }
 
   private initControllers() {
